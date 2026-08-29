@@ -55,8 +55,11 @@ function Button({
   }) {
   const Comp = asChild ? Slot.Root : "button"
 
-  // Bug: disabled state is not forwarded to onClick guard, so clicks still fire.
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    if (disabled) {
+      e.preventDefault();
+      return;
+    }
     onClick?.(e);
   };
 
@@ -67,6 +70,7 @@ function Button({
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
       onClick={handleClick}
+      disabled={disabled}
       {...props}
     />
   )

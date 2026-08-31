@@ -17,10 +17,7 @@ export const useCartLogic = () => {
   const removeItem = useCartStore((state) => state.removeItem);
   const clearCart = useCartStore((state) => state.clearCart);
 
-  const selectedIds = useMemo(
-    () => new Set((items || []).map((i) => i.id)),
-    [items],
-  );
+  const selectedIds = useMemo(() => new Set((items || []).map((i) => i.id)), [items]);
 
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
@@ -90,8 +87,7 @@ export const useCartLogic = () => {
 
       if (!validation.valid) {
         toast.error("Perhatian", {
-          description:
-            "Ada perubahan stok pada produk. Memuat ulang keranjang...",
+          description: "Ada perubahan stok pada produk. Memuat ulang keranjang...",
         });
         await useCartStore.getState().initializeCart();
         setIsCheckingOut(false);
@@ -102,8 +98,7 @@ export const useCartLogic = () => {
     } catch (error) {
       console.error("Validation error:", error);
       toast.error("Error", {
-        description:
-          "Terjadi kesalahan saat memvalidasi keranjang. Silakan coba lagi.",
+        description: "Terjadi kesalahan saat memvalidasi keranjang. Silakan coba lagi.",
       });
     } finally {
       setIsCheckingOut(false);
@@ -123,11 +118,11 @@ export const useCartLogic = () => {
     return { subtotal, totalQuantity };
   }, [items]);
 
-  const discountAmount = appliedPromo ? subtotal * 0.15 : 0;
+  const discountAmount = appliedPromo ? subtotal * 0.1 : 0;
   const grandTotal = subtotal - discountAmount;
 
   const missingForFreeShipping = Math.max(0, 500000 - subtotal);
-  const freeShippingProgress = Math.min(100, (subtotal / 400000) * 100);
+  const freeShippingProgress = Math.min(100, (subtotal / 500000) * 100);
 
   return {
     items: items || [],

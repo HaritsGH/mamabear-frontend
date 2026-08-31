@@ -29,64 +29,64 @@ export const formatDate = (dateString: string): string => {
 export const getStatusConfig = (status: string) => {
   switch (status) {
     case "PAYMENT_PENDING":
-      return { 
-        label: "Menunggu Pembayaran", 
-        badge: "bg-red-600 text-white", 
-        footer: "bg-red-600 text-white" 
+      return {
+        label: "Menunggu Pembayaran",
+        badge: "bg-red-600 text-white",
+        footer: "bg-red-600 text-white",
       };
     case "PAYMENT_PAID":
-      return { 
-        label: "Sudah Dibayar", 
-        badge: "bg-orange-500 text-white", 
-        footer: "bg-orange-500 text-white" 
+      return {
+        label: "Sudah Dibayar",
+        badge: "bg-orange-500 text-white",
+        footer: "bg-orange-500 text-white",
       };
     case "CONFIRMED":
-      return { 
-        label: "Dikonfirmasi", 
-        badge: "bg-[var(--mama-pink)] text-[var(--mama-brown)]", 
-        footer: "bg-[#e89eb8] text-[var(--mama-brown)]" 
+      return {
+        label: "Dikonfirmasi",
+        badge: "bg-[var(--mama-pink)] text-[var(--mama-brown)]",
+        footer: "bg-[#e89eb8] text-[var(--mama-brown)]",
       };
     case "PROCESSED":
-      return { 
-        label: "Diproses", 
-        badge: "bg-[var(--mama-pink)] text-[var(--mama-brown)]", 
-        footer: "bg-[#e89eb8] text-[var(--mama-brown)]" 
+      return {
+        label: "Diproses",
+        badge: "bg-[var(--mama-pink)] text-[var(--mama-brown)]",
+        footer: "bg-[#e89eb8] text-[var(--mama-brown)]",
       };
     case "SENDING":
-      return { 
-        label: "Dikirim", 
-        badge: "bg-[var(--mama-pink)] text-[var(--mama-brown)]", 
-        footer: "bg-[#e89eb8] text-[var(--mama-brown)]" 
+      return {
+        label: "Dikirim",
+        badge: "bg-[var(--mama-pink)] text-[var(--mama-brown)]",
+        footer: "bg-[#e89eb8] text-[var(--mama-brown)]",
       };
     case "RECEIVED":
-      return { 
-        label: "Diterima", 
-        badge: "bg-[var(--mama-brown)] text-white", 
-        footer: "bg-[var(--mama-brown)] text-white" 
+      return {
+        label: "Diterima",
+        badge: "bg-[var(--mama-brown)] text-white",
+        footer: "bg-[var(--mama-brown)] text-white",
       };
     case "COMPLETED":
-      return { 
-        label: "Selesai", 
-        badge: "bg-[var(--mama-brown)] text-white", 
-        footer: "bg-[var(--mama-brown)] text-white" 
+      return {
+        label: "Selesai",
+        badge: "bg-[var(--mama-brown)] text-white",
+        footer: "bg-[var(--mama-brown)] text-white",
       };
     case "CANCELLED":
-      return { 
-        label: "Batal", 
-        badge: "bg-[var(--color-gray)] text-white", 
-        footer: "bg-[var(--color-gray)] text-white" 
+      return {
+        label: "Dibatalkan",
+        badge: "bg-[var(--color-gray)] text-white",
+        footer: "bg-[var(--color-gray)] text-white",
       };
     case "REFUNDED":
-      return { 
-        label: "Dikembalikan", 
-        badge: "bg-[var(--color-gray)] text-white", 
-        footer: "bg-[var(--color-gray)] text-white" 
+      return {
+        label: "Dikembalikan",
+        badge: "bg-[var(--color-gray)] text-white",
+        footer: "bg-[var(--color-gray)] text-white",
       };
     default:
-      return { 
-        label: status, 
-        badge: "bg-gray-200 text-gray-800", 
-        footer: "bg-gray-200 text-gray-800" 
+      return {
+        label: status,
+        badge: "bg-gray-200 text-gray-800",
+        footer: "bg-gray-200 text-gray-800",
       };
   }
 };

@@ -1,9 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import {
-  ProductDetail,
-  ProductVariant,
-} from "@/features/products/types/product.types";
+import { ProductDetail, ProductVariant } from "@/features/products/types/product.types";
 import { CartItem } from "@/features/cart/types/cart.types";
 import { cartService } from "@/features/cart/services/cartService";
 
@@ -81,10 +78,7 @@ export const useCartStore = create<CartState>()(
           });
 
           const currentItems = get().items || [];
-          const existingItemIndex = currentItems.findIndex(
-            (i) =>
-              i.productId === product.id && i.variantId === (variant?.id || 0),
-          );
+          const existingItemIndex = currentItems.findIndex((i) => i.productId === product.id && i.variantId === (variant?.id || 0));
 
           const newItems = [...currentItems];
           if (existingItemIndex >= 0) {
@@ -131,13 +125,8 @@ export const useCartStore = create<CartState>()(
       updateQuantity: async (itemId, quantity) => {
         set({ isLoading: true });
         try {
-          const dbItem = await cartService.updateCartItemQuantity(
-            itemId,
-            quantity,
-          );
-          const newItems = (get().items || []).map((item) =>
-            item.id === itemId ? { ...item, quantity: dbItem.quantity } : item,
-          );
+          const dbItem = await cartService.updateCartItemQuantity(itemId, quantity);
+          const newItems = (get().items || []).map((item) => (item.id === itemId ? { ...item, quantity: dbItem.quantity } : item));
           set({ items: newItems });
         } catch (error) {
           console.error("[useCartStore] updateQuantity failed:", error);
@@ -151,9 +140,7 @@ export const useCartStore = create<CartState>()(
         set({ isLoading: true });
         try {
           await cartService.removeCartItem(itemId);
-          const newItems = (get().items || []).filter(
-            (item) => item.id === itemId,
-          );
+          const newItems = (get().items || []).filter((item) => item.id !== itemId);
           set({ items: newItems });
         } catch (error) {
           console.error("[useCartStore] removeItem failed:", error);

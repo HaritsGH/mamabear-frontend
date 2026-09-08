@@ -14,7 +14,7 @@ import { productService } from "@/features/products/services/productsService";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const data = await productService.fetchFilteredProducts({ limit: 4 });
+  const data = await productService.fetchFilteredProducts({ limit: 4, isActive: true });
   const products = data?.data;
 
   return (

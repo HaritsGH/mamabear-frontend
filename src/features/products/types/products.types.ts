@@ -84,6 +84,7 @@ export interface ProductFilterParams {
   ratingAscending?: number;
   cursor?: string;
   limit?: number;
+  isActive?: boolean; // Optional filter for active products
 }
 
 export interface CategoryItem {

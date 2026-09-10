@@ -1,7 +1,4 @@
-import {
-  Product,
-  ProductFilterParams,
-} from "@/features/products/types/products.types";
+import { Product, ProductFilterParams } from "@/features/products/types/products.types";
 import { API_BASE_URL } from "@/lib/config";
 import { ApiResponse } from "@/types/api.types";
 
@@ -28,40 +25,24 @@ export interface PaginatedProducts {
  * @param params - The filter, sorting, and pagination parameters
  * @returns Promise resolving to a PaginatedProducts object or null on failure
  */
-export async function fetchFilteredProducts(
-  params: ProductFilterParams = {},
-): Promise<PaginatedProducts | null> {
+export async function fetchFilteredProducts(params: ProductFilterParams = {}): Promise<PaginatedProducts | null> {
   try {
     const searchParams = new URLSearchParams();
 
     // Handle array of category slugs
     if (params.categories && params.categories.length > 0) {
-      params.categories.forEach((cat) =>
-        searchParams.append("categories", cat),
-      );
+      params.categories.forEach((cat) => searchParams.append("categories", cat));
     }
 
     // Handle optional filters and sorting
-    if (params.minPrice !== undefined && params.minPrice !== "")
-      searchParams.append("minPrice", params.minPrice.toString());
-    if (params.maxPrice !== undefined && params.maxPrice !== "")
-      searchParams.append("maxPrice", params.maxPrice.toString());
-    if (params.inStock !== undefined)
-      searchParams.append("inStock", params.inStock.toString());
-    if (params.priceAscending !== undefined)
-      searchParams.append("priceAscending", params.priceAscending.toString());
-    if (params.creationDateAscending !== undefined)
-      searchParams.append(
-        "creationDateAscending",
-        params.creationDateAscending.toString(),
-      );
-    if (params.popularAscending !== undefined)
-      searchParams.append(
-        "popularAscending",
-        params.popularAscending.toString(),
-      );
-    if (params.ratingAscending !== undefined)
-      searchParams.append("ratingAscending", params.ratingAscending.toString());
+    if (params.minPrice !== undefined && params.minPrice !== "") searchParams.append("minPrice", params.minPrice.toString());
+    if (params.maxPrice !== undefined && params.maxPrice !== "") searchParams.append("maxPrice", params.maxPrice.toString());
+    if (params.inStock !== undefined) searchParams.append("inStock", params.inStock.toString());
+    if (params.isActive !== undefined) searchParams.append("isActive", params.isActive.toString());
+    if (params.priceAscending !== undefined) searchParams.append("priceAscending", params.priceAscending.toString());
+    if (params.creationDateAscending !== undefined) searchParams.append("creationDateAscending", params.creationDateAscending.toString());
+    if (params.popularAscending !== undefined) searchParams.append("popularAscending", params.popularAscending.toString());
+    if (params.ratingAscending !== undefined) searchParams.append("ratingAscending", params.ratingAscending.toString());
 
     // Handle pagination
     if (params.cursor) searchParams.append("cursor", params.cursor);
@@ -83,17 +64,13 @@ export async function fetchFilteredProducts(
 
     if (!response.success) {
       console.error(`[productService] API Error: ${response.message}`);
-      throw new Error(
-        response.message || "API returned an error while fetching products",
-      );
+      throw new Error(response.message || "API returned an error while fetching products");
     }
 
     return response.data;
   } catch (error) {
     console.error("[productService] fetchFilteredProducts failed:", error);
-    throw error instanceof Error
-      ? error
-      : new Error("An unknown error occurred");
+    throw error instanceof Error ? error : new Error("An unknown error occurred");
   }
 }
 
@@ -111,25 +88,19 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     });
 
     if (!res.ok) {
-      throw new Error(
-        `HTTP Error: ${res.status} - Failed to fetch product details`,
-      );
+      throw new Error(`HTTP Error: ${res.status} - Failed to fetch product details`);
     }
 
     const response: ApiResponse<Product> = await res.json();
 
     if (!response.success || !response.data) {
-      throw new Error(
-        response.message || "API returned an error while updating the product",
-      );
+      throw new Error(response.message || "API returned an error while updating the product");
     }
 
     return response.data;
   } catch (error) {
     console.error("[productService] getProductBySlug failed:", error);
-    throw error instanceof Error
-      ? error
-      : new Error("An unknown error occurred");
+    throw error instanceof Error ? error : new Error("An unknown error occurred");
   }
 }
 

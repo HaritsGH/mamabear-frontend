@@ -1,9 +1,4 @@
-import {
-  LoginPayload,
-  LoginResponse,
-  RegisterPayload,
-  RegisterResponse,
-} from "@/features/auth/types/auth.types";
+import { LoginPayload, LoginResponse, RegisterPayload, RegisterResponse } from "@/features/auth/types/auth.types";
 import { API_BASE_URL } from "@/lib/config";
 import { ApiResponse } from "@/types/api.types";
 
@@ -29,9 +24,7 @@ export async function loginUser(payload: LoginPayload): Promise<LoginResponse> {
 /**
  * Registers a new user account.
  */
-export async function registerUser(
-  payload: RegisterPayload,
-): Promise<RegisterResponse> {
+export async function registerUser(payload: RegisterPayload): Promise<RegisterResponse> {
   const res = await fetch(`${API_BASE_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -39,7 +32,7 @@ export async function registerUser(
       name: payload.fullname,
       email: payload.email,
       password: payload.password,
-      phone: payload.phone,
+      phone: payload.phone ? `+62${payload.phone.replace(/\D/g, "").replace(/^0/, "")}` : undefined,
     }),
   });
 
@@ -60,9 +53,7 @@ export async function verifyEmail(token: string): Promise<ApiResponse<null>> {
   const response: ApiResponse<null> = await res.json();
 
   if (!res.ok || !response.success) {
-    throw new Error(
-      response.message || "Link verifikasi tidak valid atau kadaluarsa.",
-    );
+    throw new Error(response.message || "Link verifikasi tidak valid atau kadaluarsa.");
   }
 
   return response;
@@ -71,9 +62,7 @@ export async function verifyEmail(token: string): Promise<ApiResponse<null>> {
 /**
  * Sends a password reset request to trigger a recovery email from the backend.
  */
-export async function requestPasswordReset(
-  email: string,
-): Promise<ApiResponse<null>> {
+export async function requestPasswordReset(email: string): Promise<ApiResponse<null>> {
   const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
     method: "POST",
     headers: {
@@ -95,10 +84,7 @@ export async function requestPasswordReset(
  * Submits the new password using the verification token.
  * Hits backend endpoint: POST /auth/reset-password/:token
  */
-export async function confirmPasswordReset(
-  token: string,
-  password: string,
-): Promise<ApiResponse<null>> {
+export async function confirmPasswordReset(token: string, password: string): Promise<ApiResponse<null>> {
   const res = await fetch(`${API_BASE_URL}/auth/reset-password/${token}`, {
     method: "POST",
     headers: {
@@ -110,9 +96,7 @@ export async function confirmPasswordReset(
   const response = await res.json();
 
   if (!res.ok || !response.success) {
-    throw new Error(
-      response.message || "Gagal mengatur ulang password. Silakan coba lagi.",
-    );
+    throw new Error(response.message || "Gagal mengatur ulang password. Silakan coba lagi.");
   }
 
   return response;

@@ -11,9 +11,7 @@ interface AddressListProps {
 
 export function AddressList({ initialAddresses }: AddressListProps) {
   const addresses = initialAddresses;
-  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
-    initialAddresses.length > 0 ? initialAddresses[0].id : null,
-  );
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(initialAddresses.length > 0 ? initialAddresses[0].id : null);
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -31,38 +29,37 @@ export function AddressList({ initialAddresses }: AddressListProps) {
               <div
                 key={address.id}
                 onClick={() => setSelectedAddressId(address.id)}
-                className={`p-6 rounded-xl border cursor-pointer transition-colors relative ${
-                  isSelected
-                    ? "border-[var(--mama-hot-pink)] bg-white shadow-sm"
-                    : "border-gray-300 bg-white hover:border-gray-400"
-                }`}
+                className={`p-6 rounded-xl border cursor-pointer transition-colors relative ${isSelected ? "border-[var(--mama-hot-pink)] bg-white shadow-sm" : "border-gray-300 bg-white hover:border-gray-400"}`}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
                     <MapPin className="text-[var(--mama-brown)]" size={20} />
-                    <h3 className="font-bold text-[var(--mama-brown)] text-font-2">
-                      {address.usedFor} {address.name}
-                    </h3>
+                    <h3 className="font-bold text-[var(--mama-brown)] text-font-2">{address.name}</h3>
+                    <div className="flex items-center gap-3 ml-3">
+                      {address.usedFor
+                        ?.split(",")
+                        .map((item) => item.trim())
+                        .filter(Boolean)
+                        .map((item, index) => (
+                          <span key={index} className="inline-block rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700">
+                            {item}
+                          </span>
+                        ))}
+                    </div>
                   </div>
-                  <Link
-                    href={`/account/addresses/${address.id}/edit`}
-                    className="text-gray-400 hover:text-orange-900 text-sm font-medium transition-colors"
-                  >
+                  <Link href={`/account/addresses/${address.id}/edit`} className="text-gray-400 hover:text-orange-900 text-sm font-medium transition-colors">
                     Ubah
                   </Link>
                 </div>
 
                 <div className="pl-7 space-y-2">
-                  <p className="text-[var(--mama-brown)] font-bold text-font-1">
-                    {address.phone}
-                  </p>
+                  <p className="text-[var(--mama-brown)] font-bold text-font-1">{address.phone}</p>
                   <div className="text-gray-600 text-font-1 leading-relaxed">
                     <p>{address.road}</p>
                     {address.detail && <p>({address.detail})</p>}
                     <p>
                       {address.districtName && `Kec. ${address.districtName}, `}
-                      {address.subdistrictName &&
-                        `Kel. ${address.subdistrictName}`}
+                      {address.subdistrictName && `Kel. ${address.subdistrictName}`}
                     </p>
                     <p>
                       {address.cityName && `${address.cityName}, `}
@@ -77,10 +74,7 @@ export function AddressList({ initialAddresses }: AddressListProps) {
         )}
       </div>
 
-      <Link
-        href="addresses/new"
-        className="block w-full text-center bg-[var(--mama-pink)] hover:bg-[#f5b8c9] text-[var(--mama-brown)] font-bold py-4 px-4 rounded-full transition-colors text-font-3"
-      >
+      <Link href="addresses/new" className="block w-full text-center bg-[var(--mama-pink)] hover:bg-[#f5b8c9] text-[var(--mama-brown)] font-bold py-4 px-4 rounded-full transition-colors text-font-3">
         + Alamat baru
       </Link>
     </div>

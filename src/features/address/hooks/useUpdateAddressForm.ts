@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import {
-  getProvinces,
-  getCities,
-  getDistricts,
-  getSubdistricts,
-} from "../services/shippingService";
+import { getProvinces, getCities, getDistricts, getSubdistricts } from "../services/shippingService";
 import { updateAddress, deleteAddress } from "../services/addressService";
 import { Region, Subdistrict } from "../types/shipping.types";
 import { Address, AddressFormData } from "../types/address.types";
@@ -74,11 +69,7 @@ export function useUpdateAddressForm(initialAddress: Address) {
         setProvinces(provs);
 
         // Chain load cities, districts, and subdistricts based on initialAddress values
-        const [cts, dts, subs] = await Promise.all([
-          getCities(initialAddress.provinceId),
-          getDistricts(initialAddress.cityId),
-          getSubdistricts(initialAddress.districtId),
-        ]);
+        const [cts, dts, subs] = await Promise.all([getCities(initialAddress.provinceId), getDistricts(initialAddress.cityId), getSubdistricts(initialAddress.districtId)]);
 
         if (isMounted) {
           setCities(cts);
@@ -104,10 +95,7 @@ export function useUpdateAddressForm(initialAddress: Address) {
     if (isLoadingOptions || !selectedProvinceId) return;
 
     // Reset downstream if the province selection changes dynamically from its loaded state
-    if (
-      selectedProvinceId !== initialAddress.provinceId.toString() &&
-      cities.length > 0
-    ) {
+    if (selectedProvinceId !== initialAddress.provinceId.toString() && cities.length > 0) {
       resetField("cityId");
       resetField("districtId");
       resetField("subdistrictId");
@@ -133,22 +121,14 @@ export function useUpdateAddressForm(initialAddress: Address) {
     return () => {
       isMounted = false;
     };
-  }, [
-    selectedProvinceId,
-    isLoadingOptions,
-    initialAddress.provinceId,
-    resetField,
-  ]);
+  }, [selectedProvinceId, isLoadingOptions, initialAddress.provinceId, resetField]);
 
   // 3. Cascade Handler: City change
   useEffect(() => {
     let isMounted = true;
     if (isLoadingOptions || !selectedCityId) return;
 
-    if (
-      selectedCityId !== initialAddress.cityId.toString() &&
-      districts.length > 0
-    ) {
+    if (selectedCityId !== initialAddress.cityId.toString() && districts.length > 0) {
       resetField("districtId");
       resetField("subdistrictId");
       resetField("zipCode");
@@ -179,10 +159,7 @@ export function useUpdateAddressForm(initialAddress: Address) {
     let isMounted = true;
     if (isLoadingOptions || !selectedDistrictId) return;
 
-    if (
-      selectedDistrictId !== initialAddress.districtId.toString() &&
-      subdistricts.length > 0
-    ) {
+    if (selectedDistrictId !== initialAddress.districtId.toString() && subdistricts.length > 0) {
       resetField("subdistrictId");
       resetField("zipCode");
       setSubdistricts([]);
@@ -204,20 +181,13 @@ export function useUpdateAddressForm(initialAddress: Address) {
     return () => {
       isMounted = false;
     };
-  }, [
-    selectedDistrictId,
-    isLoadingOptions,
-    initialAddress.districtId,
-    resetField,
-  ]);
+  }, [selectedDistrictId, isLoadingOptions, initialAddress.districtId, resetField]);
 
   // 5. Postal Code Sync
   useEffect(() => {
     if (!selectedSubdistrictId || subdistricts.length === 0) return;
 
-    const matchedSub = subdistricts.find(
-      (sub) => sub.id.toString() === selectedSubdistrictId,
-    );
+    const matchedSub = subdistricts.find((sub) => sub.id.toString() === selectedSubdistrictId);
 
     if (matchedSub && matchedSub.zip_code) {
       setValue("zipCode", matchedSub.zip_code);
@@ -227,15 +197,10 @@ export function useUpdateAddressForm(initialAddress: Address) {
   // Submit Handler
   const onSubmit = async (data: AddressFormData) => {
     try {
-      const provinceName =
-        provinces.find((p) => p.id.toString() === data.provinceId)?.name || "";
-      const cityName =
-        cities.find((c) => c.id.toString() === data.cityId)?.name || "";
-      const districtName =
-        districts.find((d) => d.id.toString() === data.districtId)?.name || "";
-      const subdistrictName =
-        subdistricts.find((s) => s.id.toString() === data.subdistrictId)
-          ?.name || "";
+      const provinceName = provinces.find((p) => p.id.toString() === data.provinceId)?.name || "";
+      const cityName = cities.find((c) => c.id.toString() === data.cityId)?.name || "";
+      const districtName = districts.find((d) => d.id.toString() === data.districtId)?.name || "";
+      const subdistrictName = subdistricts.find((s) => s.id.toString() === data.subdistrictId)?.name || "";
 
       // Append address information like Prisma completeAddress property expects
       const completeAddress = `${data.street}, ${subdistrictName}, ${districtName}, ${cityName}, ${provinceName} ${data.zipCode}`;
@@ -270,10 +235,7 @@ export function useUpdateAddressForm(initialAddress: Address) {
       }, 1500);
     } catch (error: unknown) {
       console.error("Gagal memperbarui alamat:", error);
-      const errMsg =
-        error instanceof Error
-          ? error.message
-          : "Terjadi kesalahan sistem saat memperbarui alamat.";
+      const errMsg = error instanceof Error ? error.message : "Terjadi kesalahan sistem saat memperbarui alamat.";
       setFeedbackMessage({ type: "error", text: errMsg });
     }
   };
@@ -293,10 +255,7 @@ export function useUpdateAddressForm(initialAddress: Address) {
       }, 1500);
     } catch (error: unknown) {
       console.error("Gagal menghapus alamat:", error);
-      const errMsg =
-        error instanceof Error
-          ? error.message
-          : "Terjadi kesalahan sistem saat menghapus alamat.";
+      const errMsg = error instanceof Error ? error.message : "Terjadi kesalahan sistem saat menghapus alamat.";
       setFeedbackMessage({ type: "error", text: errMsg });
       setIsDeleteModalOpen(false);
     } finally {
@@ -308,6 +267,7 @@ export function useUpdateAddressForm(initialAddress: Address) {
     register,
     handleSubmit,
     onSubmit,
+    setValue,
     errors,
     isSubmitting,
     isDeleting,

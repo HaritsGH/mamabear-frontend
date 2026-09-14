@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import {
-  getProvinces,
-  getCities,
-  getDistricts,
-  getSubdistricts,
-} from "../services/shippingService";
+import { getProvinces, getCities, getDistricts, getSubdistricts } from "../services/shippingService";
 import { createAddress } from "../services/addressService";
 import { Region, Subdistrict } from "../types/shipping.types";
 import { AddressFormData, Address } from "../types/address.types";
@@ -152,9 +147,7 @@ export function useAddressForm() {
   useEffect(() => {
     if (!selectedSubdistrictId || subdistricts.length === 0) return;
 
-    const selectedSub = subdistricts.find(
-      (sub) => sub.id.toString() === selectedSubdistrictId,
-    );
+    const selectedSub = subdistricts.find((sub) => sub.id.toString() === selectedSubdistrictId);
 
     if (selectedSub && selectedSub.zip_code) {
       setValue("zipCode", selectedSub.zip_code);
@@ -168,15 +161,10 @@ export function useAddressForm() {
 
     try {
       // Resolve full names for the Prisma Schema mapping
-      const provinceName =
-        provinces.find((p) => p.id.toString() === data.provinceId)?.name || "";
-      const cityName =
-        cities.find((c) => c.id.toString() === data.cityId)?.name || "";
-      const districtName =
-        districts.find((d) => d.id.toString() === data.districtId)?.name || "";
-      const subdistrictName =
-        subdistricts.find((s) => s.id.toString() === data.subdistrictId)
-          ?.name || "";
+      const provinceName = provinces.find((p) => p.id.toString() === data.provinceId)?.name || "";
+      const cityName = cities.find((c) => c.id.toString() === data.cityId)?.name || "";
+      const districtName = districts.find((d) => d.id.toString() === data.districtId)?.name || "";
+      const subdistrictName = subdistricts.find((s) => s.id.toString() === data.subdistrictId)?.name || "";
 
       // Format complete address string based on inputs
       const detailStr = data.details ? `(${data.details}), ` : "";
@@ -212,10 +200,7 @@ export function useAddressForm() {
       }, 1500);
     } catch (error) {
       console.error("Failed to save address:", error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Terjadi kesalahan saat menyimpan alamat.";
+      const message = error instanceof Error ? error.message : "Terjadi kesalahan saat menyimpan alamat.";
       setErrorMessage(message);
     }
   };
@@ -224,6 +209,7 @@ export function useAddressForm() {
     register,
     handleSubmit,
     onSubmit,
+    setValue,
     errors,
     isSubmitting,
     dropdowns: {

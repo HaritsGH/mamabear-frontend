@@ -1,18 +1,43 @@
 "use client";
 
 import React from "react";
-import { AlertCircle, CheckCircle, Loader2, Trash } from "lucide-react";
+import { AlertCircle, CheckCircle, Loader2, PlusIcon, Trash, X } from "lucide-react";
 import Link from "next/link";
 import { Address } from "@/features/address/types/address.types";
 import { useUpdateAddressForm } from "@/features/address/hooks/useUpdateAddressForm";
+
+const labelVals = ["Rumah", "Kantor", "Sekolah", "Apartemen", "Toko", "Gudang", "Orang Tua", "Keluarga"];
+const MAX_LABEL = 3;
 
 interface UpdateAddressFormProps {
   address: Address;
 }
 
 export function UpdateAddressForm({ address }: UpdateAddressFormProps) {
-  const { register, handleSubmit, onSubmit, errors, isSubmitting, isDeleting, options, loaders, modal, feedbackMessage } = useUpdateAddressForm(address);
+  const { register, handleSubmit, onSubmit, errors, isSubmitting, isDeleting, options, loaders, modal, feedbackMessage, setValue } = useUpdateAddressForm(address);
+  const [label, setLabel] = React.useState<string[]>(() =>
+    address.usedFor
+      ? address.usedFor
+          .split(",")
+          .map((l) => l.trim())
+          .filter(Boolean)
+      : [],
+  );
+  const [selectedLabel, setSelectedLabel] = React.useState<string>("");
 
+  const handleAddButton = (newLabel: string) => {
+    if (!newLabel || label.includes(newLabel) || label.length >= MAX_LABEL) return;
+    const next = [...label, newLabel];
+    setLabel(next);
+    setValue("label", next.join(", "));
+    setSelectedLabel("");
+  };
+
+  const handleDeleteButton = (index: number) => {
+    const next = label.filter((_, i) => i !== index);
+    setLabel(next);
+    setValue("label", next.join(", "));
+  };
   return (
     <div className="w-full max-w-3xl mx-auto bg-white p-6 rounded-lg relative">
       {/* Dynamic inline notification banners */}
@@ -29,7 +54,7 @@ export function UpdateAddressForm({ address }: UpdateAddressFormProps) {
           <p className="text-font-2">Memuat detil pilihan alamat...</p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
           {/* ROW 1: Name and Phone */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
             <div className="flex flex-col">
@@ -170,11 +195,43 @@ export function UpdateAddressForm({ address }: UpdateAddressFormProps) {
           {/* ROW 6: Label */}
           <div className="flex flex-col">
             <label className="text-[var(--mama-brown)] font-bold text-font-2 mb-2">Simpan Sebagai (Label)</label>
-            <input
-              type="text"
-              className="w-full border-0 border-b border-gray-300 focus:border-[var(--mama-hot-pink)] focus:ring-0 px-0 py-2 bg-transparent text-font-2 text-gray-800 outline-none transition-colors"
-              {...register("label", { required: "Label alamat wajib diisi" })}
-            />
+            <div className="flex items-center gap-5 mt-2">
+              {label.map((lbl, index) => (
+                <span key={index} className="flex items-center gap-2 bg-[var(--mama-hot-pink)] rounded-lg px-2 py-1 text-white">
+                  {lbl}{" "}
+                  <button type="button" onClick={() => handleDeleteButton(index)}>
+                    <X />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="flex items-center gap-1 mt-2">
+              <input type="hidden" {...register("label", { required: "Label alamat wajib diisi" })} />
+              <select
+                className="w-full border-0 border-b border-gray-300 focus:border-[var(--mama-hot-pink)] focus:ring-0 px-0 py-2 bg-transparent text-font-2 text-gray-800 outline-none transition-colors appearance-none cursor-pointer"
+                onChange={(e) => setSelectedLabel(e.target.value)}
+                disabled={label.length >= MAX_LABEL}
+              >
+                <option value="">Pilih Label</option>
+                {labelVals
+                  .filter((v) => !label.includes(v))
+                  .map((v, index) => (
+                    <option key={index} value={v}>
+                      {v}
+                    </option>
+                  ))}
+              </select>
+              {errors.label && <span className="text-red-500 text-font-1 mt-1">{errors.label.message}</span>}
+              <button
+                disabled={label.length >= MAX_LABEL}
+                type="button"
+                className="ml-2 px-3 py-1 bg-[var(--mama-hot-pink)] text-white rounded-full text-font-1 hover:bg-[#c24467] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[var(--mama-hot-pink)]"
+                onClick={() => handleAddButton(selectedLabel)}
+              >
+                <PlusIcon />
+              </button>
+            </div>
+            {label.length >= MAX_LABEL && <span className="text-font-1 text-gray-500 mt-1">Maksimal 3 label per alamat</span>}
           </div>
 
           {/* Actions Footer */}

@@ -1,9 +1,9 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth"; // Adjust to your real auth config
 import { CheckoutView } from "@/features/checkout/components/informations/CheckoutView";
-import {getAddresses} from "@/features/address/services/addressService";
+import { getAddresses } from "@/features/address/services/addressService";
 
 export default async function CheckoutPage() {
   const session = await getServerSession(authOptions);
@@ -18,10 +18,9 @@ export default async function CheckoutPage() {
 
   return (
     <div className="page-max-width py-10 px-4 md:px-8 min-h-screen">
-      <CheckoutView initialAddresses={addresses} userEmail={userEmail} />
+      <Suspense fallback={null}>
+        <CheckoutView initialAddresses={addresses} userEmail={userEmail} />
+      </Suspense>
     </div>
   );
 }
-
-
-

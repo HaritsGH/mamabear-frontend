@@ -24,6 +24,8 @@ export function CartClientView() {
     freeShippingProgress,
     promoCode,
     setPromoCode,
+    handlePromoCodeChange,
+    promoError,
     appliedPromo,
     handleApplyPromo,
     isCheckingOut,
@@ -140,6 +142,8 @@ export function CartClientView() {
                 grandTotal={grandTotal}
                 promoCode={promoCode}
                 setPromoCode={setPromoCode}
+                onPromoCodeChange={handlePromoCodeChange}
+                promoError={promoError}
                 appliedPromo={appliedPromo}
                 handleApplyPromo={handleApplyPromo}
                 selectedCount={selectedIds.size}

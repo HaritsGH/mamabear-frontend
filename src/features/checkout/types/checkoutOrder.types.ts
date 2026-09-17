@@ -1,13 +1,7 @@
 /**
  * Standard Statuses for an Order in MamaBear
  */
-export type OrderStatus =
-  | "PAYMENT_PENDING"
-  | "PAID"
-  | "PROCESSING"
-  | "SHIPPED"
-  | "DELIVERED"
-  | "CANCELLED";
+export type OrderStatus = "PAYMENT_PENDING" | "PAID" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
 
 /**
  * Supported payment methods
@@ -20,7 +14,7 @@ export type PaymentMethod = "BANK_TRANSFER" | "COD" | "CREDIT_CARD" | "E_WALLET"
  */
 export interface CreateOrderPayload {
   cartId: string;
-  addressId: number; // Sent as a string to the BE order endpoint
+  addressId: number;
   notes?: string;
 }
 

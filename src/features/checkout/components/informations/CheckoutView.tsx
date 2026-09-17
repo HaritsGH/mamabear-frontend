@@ -209,18 +209,18 @@ export function CheckoutView({ initialAddresses, userEmail }: CheckoutViewProps)
                 {isCalculatingShipping ? <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div> : <span className="font-bold text-black">{totals.shippingCost > 0 ? formatRupiah(totals.shippingCost) : "-"}</span>}
               </div>
 
+              {totals.promoDiscount > 0 && (
+                <div className="flex justify-between text-font-2">
+                  <span className="text-gray-600">Promo ongkir</span>
+                  <span className="font-bold text-red-600">({formatRupiah(totals.promoDiscount)})</span>
+                </div>
+              )}
+
               {/* Pajak (Tax) */}
               <div className="flex justify-between text-font-2">
                 <span className="text-gray-600">Pajak</span>
                 {isLoadingCart ? <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div> : <span className="font-bold text-black">{totals.tax > 0 ? formatRupiah(totals.tax) : "-"}</span>}
               </div>
-
-              {totals.promoDiscount > 0 && (
-                <div className="flex justify-between text-font-2">
-                  <span className="text-gray-600">Promo</span>
-                  <span className="font-bold text-red-600">({formatRupiah(totals.promoDiscount)})</span>
-                </div>
-              )}
             </div>
 
             {/* Grand Total */}

@@ -19,10 +19,15 @@ export const useCartLogic = () => {
   const selectedIds = useMemo(() => new Set((items || []).map((i) => i.id)), [items]);
 
   const [promoCode, setPromoCode] = useState("");
-  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
-  const [appliedPromoDiscount, setAppliedPromoDiscount] = useState(0);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [promoError, setPromoError] = useState<string | null>(null);
+
+  const [appliedPromoInfo, setAppliedPromoInfo] = useState<{
+    code: string;
+    name: string;
+    isPercentage: boolean;
+    amount: number;
+  } | null>(null);
 
   const handleApplyPromo = async () => {
     if (!isLoggedIn) {
@@ -32,15 +37,16 @@ export const useCartLogic = () => {
     try {
       const result = await validatePromo(promoCode);
       if (result.valid) {
-        setAppliedPromo(promoCode.trim().toUpperCase());
-        setAppliedPromoDiscount(result.discountAmount ?? 0);
-        setPromoError(null);
-        toast.success("Berhasil", {
-          description: "Kode promo berhasil digunakan",
+        setAppliedPromoInfo({
+          code: promoCode.trim().toUpperCase(),
+          name: result.name || promoCode.trim().toUpperCase(),
+          isPercentage: result.isPercentage ?? false,
+          amount: result.amount ?? 0,
         });
+        setPromoError(null);
+        toast.success("Berhasil", { description: "Kode promo berhasil digunakan" });
       } else {
-        setAppliedPromo(null);
-        setAppliedPromoDiscount(0);
+        setAppliedPromoInfo(null);
         setPromoError(result.message || "Kode promo tidak valid");
         toast.error("Gagal", {
           description: result.message || "Kode promo tidak valid",
@@ -48,7 +54,7 @@ export const useCartLogic = () => {
       }
     } catch (error) {
       console.error("Promo validation error:", error);
-      setAppliedPromo(null);
+      setAppliedPromoInfo(null);
       setPromoError("Terjadi kesalahan saat memvalidasi kode promo.");
       toast.error("Gagal", { description: "Terjadi kesalahan saat memvalidasi kode promo." });
     }
@@ -89,7 +95,7 @@ export const useCartLogic = () => {
 
   const handleCheckout = async () => {
     const itemsQuery = items.map((i) => i.id).join(",");
-    const promoQuery = appliedPromo ? `&promo=${encodeURIComponent(appliedPromo)}` : "";
+    const promoQuery = appliedPromoInfo ? `&promo=${encodeURIComponent(appliedPromoInfo.code)}` : "";
     const targetUrl = `/checkout?items=${itemsQuery}${promoQuery}`;
 
     // 1. Immediately redirect guests to login BEFORE running any validation
@@ -136,9 +142,6 @@ export const useCartLogic = () => {
     return { subtotal, totalQuantity };
   }, [items]);
 
-  const discountAmount = appliedPromoDiscount ?? 0;
-  const grandTotal = subtotal;
-
   const missingForFreeShipping = Math.max(0, 500000 - subtotal);
   const freeShippingProgress = Math.min(100, (subtotal / 500000) * 100);
 
@@ -158,16 +161,13 @@ export const useCartLogic = () => {
     handleCheckout,
     subtotal,
     totalQuantity,
-    grandTotal,
-    discountAmount,
-    appliedPromoDiscount,
+    appliedPromoInfo,
     missingForFreeShipping,
     freeShippingProgress,
     promoCode,
     setPromoCode,
     handlePromoCodeChange,
     promoError,
-    appliedPromo,
     handleApplyPromo,
     isCheckingOut,
   };

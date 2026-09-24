@@ -3,11 +3,9 @@ import { formatIDR } from "@/utils/formatters";
 
 export const OrderSummary = ({
   subtotal,
-  discountAmount,
-  grandTotal,
   promoCode,
   setPromoCode,
-  appliedPromo,
+  appliedPromoInfo,
   handleApplyPromo,
   promoError,
   onPromoCodeChange,
@@ -16,11 +14,14 @@ export const OrderSummary = ({
   isCheckingOut,
 }: {
   subtotal: number;
-  discountAmount: number;
-  grandTotal: number;
   promoCode: string;
   setPromoCode: (val: string) => void;
-  appliedPromo: string | null;
+  appliedPromoInfo: {
+    code: string;
+    name: string;
+    isPercentage: boolean;
+    amount: number;
+  } | null;
   handleApplyPromo: () => void;
   promoError?: string | null;
   onPromoCodeChange?: (val: string) => void;
@@ -28,6 +29,7 @@ export const OrderSummary = ({
   handleCheckout: () => void;
   isCheckingOut: boolean;
 }) => {
+  const discountLabel = appliedPromoInfo ? (appliedPromoInfo.isPercentage ? `-${appliedPromoInfo.amount}%` : `-${formatIDR(appliedPromoInfo.amount)}`) : "";
   return (
     <div className="border border-gray-200 rounded-2xl p-6 bg-white sticky top-24 shadow-sm">
       <div className="space-y-4 mb-6">
@@ -56,9 +58,9 @@ export const OrderSummary = ({
             value={promoCode}
             onChange={(e) => (onPromoCodeChange || setPromoCode)(e.target.value)}
             className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-font-2 focus:outline-none focus:border-[var(--mama-hot-pink)] text-[var(--color-gray)] uppercase"
-            disabled={!!appliedPromo}
+            disabled={!!appliedPromoInfo}
           />
-          <button onClick={handleApplyPromo} disabled={!promoCode || !!appliedPromo} className="bg-[var(--mama-hot-pink)] text-white px-6 py-2 rounded-lg font-bold text-font-2 hover:opacity-90 transition-opacity disabled:opacity-50">
+          <button onClick={handleApplyPromo} disabled={!promoCode || !!appliedPromoInfo} className="bg-[var(--mama-hot-pink)] text-white px-6 py-2 rounded-lg font-bold text-font-2 hover:opacity-90 transition-opacity disabled:opacity-50">
             PAKAI
           </button>
         </div>
@@ -66,16 +68,18 @@ export const OrderSummary = ({
       </div>
 
       <div className="space-y-4 mb-8">
-        {appliedPromo && (
-          <div className="flex justify-between items-center text-font-2 text-[var(--mama-hot-pink)]">
-            <span className="font-semibold">Promo ongkir</span>
-            <span className="font-bold">(-{formatIDR(discountAmount)})</span>
+        {appliedPromoInfo && (
+          <div className="mb-4 p-3 rounded-lg border border-[var(--mama-pink)] bg-[var(--mama-pink)]/10 text-font-1">
+            <p className="font-bold text-[var(--mama-hot-pink)]">
+              {appliedPromoInfo.code} aktif · Potongan ongkir {discountLabel}
+            </p>
+            <p className="text-[var(--color-gray)] mt-1">Diterapkan saat checkout.</p>
           </div>
         )}
 
         <div className="flex justify-between items-center text-font-2 text-[var(--mama-brown)]">
           <span className="font-semibold">Subtotal</span>
-          <span className="text-font-5 font-bold">{formatIDR(grandTotal)}</span>
+          <span className="text-font-5 font-bold">{formatIDR(subtotal)}</span>
         </div>
       </div>
 

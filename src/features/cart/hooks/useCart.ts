@@ -4,8 +4,7 @@ import { toast } from "sonner";
 import { useCartStore } from "@/features/cart/store/use-cart-store";
 import { cartService } from "@/features/cart/services/cartService";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-
-const DUMMY_PROMO_CODE = "MAMABEAR10";
+import { validatePromo } from "@/features/admin/promos/services/PromoService";
 
 export const useCartLogic = () => {
   const router = useRouter();
@@ -20,20 +19,44 @@ export const useCartLogic = () => {
   const selectedIds = useMemo(() => new Set((items || []).map((i) => i.id)), [items]);
 
   const [promoCode, setPromoCode] = useState("");
-  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [promoError, setPromoError] = useState<string | null>(null);
 
-  const handleApplyPromo = () => {
-    if (promoCode.toUpperCase() === DUMMY_PROMO_CODE) {
-      setAppliedPromo(promoCode.toUpperCase());
-      toast.success("Berhasil", {
-        description: "Kode promo berhasil digunakan!",
-      });
-    } else {
-      toast.error("Gagal", {
-        description: "Kode promo tidak valid",
-      });
-      setAppliedPromo(null);
+  const [appliedPromoInfo, setAppliedPromoInfo] = useState<{
+    code: string;
+    name: string;
+    isPercentage: boolean;
+    amount: number;
+  } | null>(null);
+
+  const handleApplyPromo = async () => {
+    if (!isLoggedIn) {
+      router.push(`/login?callbackUrl=${encodeURIComponent("/cart")}`);
+      return;
+    }
+    try {
+      const result = await validatePromo(promoCode);
+      if (result.valid) {
+        setAppliedPromoInfo({
+          code: promoCode.trim().toUpperCase(),
+          name: result.name || promoCode.trim().toUpperCase(),
+          isPercentage: result.isPercentage ?? false,
+          amount: result.amount ?? 0,
+        });
+        setPromoError(null);
+        toast.success("Berhasil", { description: "Kode promo berhasil digunakan" });
+      } else {
+        setAppliedPromoInfo(null);
+        setPromoError(result.message || "Kode promo tidak valid");
+        toast.error("Gagal", {
+          description: result.message || "Kode promo tidak valid",
+        });
+      }
+    } catch (error) {
+      console.error("Promo validation error:", error);
+      setAppliedPromoInfo(null);
+      setPromoError("Terjadi kesalahan saat memvalidasi kode promo.");
+      toast.error("Gagal", { description: "Terjadi kesalahan saat memvalidasi kode promo." });
     }
   };
 
@@ -72,7 +95,8 @@ export const useCartLogic = () => {
 
   const handleCheckout = async () => {
     const itemsQuery = items.map((i) => i.id).join(",");
-    const targetUrl = `/checkout?items=${itemsQuery}`;
+    const promoQuery = appliedPromoInfo ? `&promo=${encodeURIComponent(appliedPromoInfo.code)}` : "";
+    const targetUrl = `/checkout?items=${itemsQuery}${promoQuery}`;
 
     // 1. Immediately redirect guests to login BEFORE running any validation
     if (!isLoggedIn) {
@@ -118,11 +142,13 @@ export const useCartLogic = () => {
     return { subtotal, totalQuantity };
   }, [items]);
 
-  const discountAmount = appliedPromo ? subtotal * 0.1 : 0;
-  const grandTotal = subtotal - discountAmount;
-
   const missingForFreeShipping = Math.max(0, 500000 - subtotal);
   const freeShippingProgress = Math.min(100, (subtotal / 500000) * 100);
+
+  const handlePromoCodeChange = (val: string) => {
+    setPromoCode(val);
+    if (promoError) setPromoError(null);
+  };
 
   return {
     items: items || [],
@@ -135,13 +161,13 @@ export const useCartLogic = () => {
     handleCheckout,
     subtotal,
     totalQuantity,
-    grandTotal,
-    discountAmount,
+    appliedPromoInfo,
     missingForFreeShipping,
     freeShippingProgress,
     promoCode,
     setPromoCode,
-    appliedPromo,
+    handlePromoCodeChange,
+    promoError,
     handleApplyPromo,
     isCheckingOut,
   };

@@ -2,10 +2,38 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Loader2, MessageCircle, Plus, Send } from "lucide-react";
+import { History, Loader2, MessageCircle, Plus, Send, X } from "lucide-react";
 import { useChat } from "../hooks/useChat";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ChatSession } from "../types/chat.types";
+import { ChatRecommendationCards } from "./ChatRecommendationCards";
+import { parseRecommendationSlugs } from "../utils/recommendations";
+
+function SessionList({ sessions, activeSessionId, isLoadingSessions, onSelect }: { sessions: ChatSession[]; activeSessionId: string | null; isLoadingSessions: boolean; onSelect: (sessionId: string) => void }) {
+  if (isLoadingSessions) {
+    return (
+      <div className="p-4 text-gray-500 text-font-2 flex items-center gap-2">
+        <Loader2 className="w-4 h-4 animate-spin" /> Memuat...
+      </div>
+    );
+  }
+  if (sessions.length === 0) {
+    return <div className="p-4 text-gray-400 text-font-2">Belum ada percakapan.</div>;
+  }
+  return (
+    <>
+      {sessions.map((session) => (
+        <button
+          key={session.id}
+          onClick={() => onSelect(session.id)}
+          className={`w-full text-left px-4 py-3 border-b border-gray-50 transition-colors ${activeSessionId === session.id ? "bg-[var(--mama-pink)] text-[var(--mama-brown)]" : "text-gray-600 hover:bg-gray-50"}`}
+        >
+          {formatTitle(session)}
+        </button>
+      ))}
+    </>
+  );
+}
 
 const formatTitle = (session: ChatSession) => {
   const date = new Date(session.createdAt);
@@ -26,7 +54,8 @@ export function ChatClientView() {
   const { isLoggedIn } = useAuth();
   const [input, setInput] = useState("");
   const autoSelectedRef = useRef(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false);
 
   useEffect(() => {
     loadSessions();
@@ -40,8 +69,11 @@ export function ChatClientView() {
     }
   }, [sessions, activeSessionId, selectSession]);
 
+  const messagesRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = messagesRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages, isSending]);
 
   const handleSend = () => {
@@ -72,41 +104,37 @@ export function ChatClientView() {
       <div className="py-8 px-4 sm:px-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-font-6 font-bold text-[var(--mama-brown)]">Online Chat</h1>
-          <button onClick={startNewSession} disabled={isSending} className="flex items-center gap-2 bg-[var(--mama-hot-pink)] hover:bg-[#c24467] disabled:opacity-60 text-white rounded-full px-4 py-2 text-font-2 font-bold transition-colors">
-            <Plus size={18} /> Chat Baru
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setMobileHistoryOpen(true)}
+              className="lg:hidden flex items-center gap-2 bg-white border border-gray-200 hover:border-[var(--mama-hot-pink)] text-[var(--mama-brown)] rounded-full px-4 py-2 text-font-2 font-bold transition-colors"
+            >
+              <History size={18} /> Riwayat
+            </button>
+            <button
+              onClick={startNewSession}
+              disabled={isSending}
+              className="flex items-center gap-2 bg-[var(--mama-hot-pink)] hover:bg-[#c24467] disabled:opacity-60 text-white rounded-full px-4 py-2 text-font-2 font-bold transition-colors"
+            >
+              <Plus size={18} /> Chat Baru
+            </button>
+          </div>
         </div>
 
         {error && <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-font-2">{error}</div>}
 
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 lg:h-[70vh]">
           {/* Session sidebar */}
-          <aside className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <aside className="hidden lg:block rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="p-4 border-b border-gray-100 font-bold text-[var(--mama-brown)] text-font-2">Riwayat Chat</div>
             <div className="overflow-y-auto lg:h-[calc(70vh-3.5rem)]">
-              {isLoadingSessions ? (
-                <div className="p-4 text-gray-500 text-font-2 flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Memuat...
-                </div>
-              ) : sessions.length === 0 ? (
-                <div className="p-4 text-gray-400 text-font-2">Belum ada percakapan.</div>
-              ) : (
-                sessions.map((session) => (
-                  <button
-                    key={session.id}
-                    onClick={() => selectSession(session.id)}
-                    className={`w-full text-left px-4 py-3 border-b border-gray-50 transition-colors ${activeSessionId === session.id ? "bg-[var(--mama-pink)] text-[var(--mama-brown)]" : "text-gray-600 hover:bg-gray-50"}`}
-                  >
-                    {formatTitle(session)}
-                  </button>
-                ))
-              )}
+              <SessionList sessions={sessions} activeSessionId={activeSessionId} isLoadingSessions={isLoadingSessions} onSelect={selectSession} />
             </div>
           </aside>
 
           {/* Main chat area */}
-          <section className="flex flex-col rounded-2xl border border-gray-100 shadow-sm overflow-hidden lg:h-full">
-            <div className="flex-1 overflow-y-auto p-6 bg-gray-50 space-y-4 min-h-[50vh] lg:min-h-0">
+          <section className="flex flex-col rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-[60vh] lg:h-full">
+            <div ref={messagesRef} className="flex-1 overflow-y-auto p-6 bg-gray-50 space-y-4 min-h-[50vh] lg:min-h-0">
               {isLoadingMessages ? (
                 <div className="flex justify-center py-10 text-gray-500 text-font-2">
                   <Loader2 className="w-5 h-5 animate-spin mr-2" /> Memuat pesan...
@@ -117,18 +145,23 @@ export function ChatClientView() {
                   <p className="text-font-2 mt-2">{activeSessionId ? "Belum ada pesan di sesi ini." : 'Tanyakan apa saja tentang produk MamaBear, misalnya: "produk apa yang bagus buat nambah ASI?"'}</p>
                 </div>
               ) : (
-                messages.map((message) => (
-                  <div key={message.id} className={`flex ${message.role === "user" ? "justify-first" : "justify-end"}`}>
-                    <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-font-2 whitespace-pre-wrap break-words ${
-                        message.role === "user" ? "bg-[var(--mama-hot-pink)] text-white rounded-br-sm" : "bg-white border border-gray-100 rounded-bl-sm shadow-sm text-gray-800"
-                      }`}
-                    >
-                      <p>{message.content}</p>
-                      <p className={`text-[11px] mt-1 ${message.role === "user" ? "text-white/70" : "text-gray-400"}`}>{formatTime(message.createdAt)}</p>
+                messages.map((message) => {
+                  const parsed = message.role === "assistant" ? parseRecommendationSlugs(message.content) : null;
+
+                  return (
+                    <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                      <div
+                        className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-font-2 whitespace-pre-wrap break-words ${
+                          message.role === "user" ? "bg-[var(--mama-hot-pink)] text-white rounded-br-sm" : "bg-white border border-gray-100 rounded-bl-sm shadow-sm text-gray-800"
+                        }`}
+                      >
+                        <p>{parsed ? parsed.text : message.content}</p>
+                        <p className={`text-[11px] mt-1 ${message.role === "user" ? "text-white/70" : "text-gray-400"}`}>{formatTime(message.createdAt)}</p>
+                        {parsed && parsed.slugs.length > 0 && <ChatRecommendationCards slugs={parsed.slugs} />}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
 
               {isSending && (
@@ -138,7 +171,6 @@ export function ChatClientView() {
                   </div>
                 </div>
               )}
-              <div ref={bottomRef} />
             </div>
 
             {/* Input */}
@@ -169,6 +201,34 @@ export function ChatClientView() {
           </section>
         </div>
       </div>
+
+      {mobileHistoryOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileHistoryOpen(false)} />
+          <div className="absolute bottom-0 inset-x-0 rounded-t-2xl bg-white shadow-xl flex flex-col max-h-[75vh]">
+            <div className="pt-2 pb-1 flex justify-center">
+              <div className="w-10 h-1 rounded-full bg-gray-300" />
+            </div>
+            <div className="px-4 py-3 flex items-center justify-between border-b border-gray-100">
+              <span className="font-bold text-[var(--mama-brown)] text-font-2">Riwayat Chat</span>
+              <button onClick={() => setMobileHistoryOpen(false)} className="p-1 rounded-full hover:bg-gray-100">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="overflow-y-auto">
+              <SessionList
+                sessions={sessions}
+                activeSessionId={activeSessionId}
+                isLoadingSessions={isLoadingSessions}
+                onSelect={(sessionId) => {
+                  selectSession(sessionId);
+                  setMobileHistoryOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { PromoCode, PromoFormValues } from "../../types/AdminPromo.types";
@@ -20,20 +19,29 @@ export const PromoEditForm = ({ initialData }: PromoEditFormProps) => {
     handleSubmit,
     watch,
     setValue,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<PromoFormValues>({
     defaultValues: {
       name: initialData.name,
       code: initialData.code,
-      isPercentage: initialData.isPercentage,
+      isPercentage: Boolean(initialData.isPercentage),
       amount: initialData.amount,
       isActive: initialData.isActive,
     },
   });
+
   const isPercentage = watch("isPercentage");
   const isActiveValue = watch("isActive");
 
-  const normalizeCode = (e: React.ChangeEvent<HTMLInputElement>) => setValue("code", e.target.value.toUpperCase(), { shouldValidate: true });
+  const normalizeCode = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setValue("code", e.target.value.toUpperCase(), { shouldValidate: true });
+
+  const handlePercentageChange = (value: boolean) => {
+    setValue("isPercentage", value, { shouldValidate: true, shouldDirty: true });
+    // Trigger revalidasi amount saat berpindah tipe
+    trigger("amount");
+  };
 
   const onSubmit = async (data: PromoFormValues) => {
     try {
@@ -56,7 +64,7 @@ export const PromoEditForm = ({ initialData }: PromoEditFormProps) => {
     <div className="w-full flex flex-col gap-6">
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="flex justify-between items-center p-6 border-b border-gray-100">
-          <h2 className="text-font-3 font-bold text-[var(--mama-brown)]">Tambah Promo Baru</h2>
+          <h2 className="text-font-3 font-bold text-[var(--mama-brown)]">Edit Promo</h2>
         </div>
 
         {error && <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-100 rounded-md text-red-600 text-font-2">{error}</div>}
@@ -94,28 +102,42 @@ export const PromoEditForm = ({ initialData }: PromoEditFormProps) => {
             {errors.code && <span className="text-red-500 text-font-1">{errors.code.message}</span>}
           </div>
 
-          {/* Tipe */}
+          {/* Tipe Promo */}
           <div className="flex flex-col gap-2">
             <label className="text-font-2 font-bold text-[var(--mama-brown)]">Tipe Promo</label>
             <div className="flex gap-6">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" value="false" disabled={isSubmitting} {...register("isPercentage", { setValueAs: (v) => v === "true" })} />
+                <input
+                  type="radio"
+                  name="isPercentage"
+                  checked={!isPercentage}
+                  disabled={isSubmitting}
+                  onChange={() => handlePercentageChange(false)}
+                />
                 <span className="text-font-2 text-[var(--color-gray)]">Nominal (Rp)</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" value="true" disabled={isSubmitting} {...register("isPercentage", { setValueAs: (v) => v === "true" })} />
+                <input
+                  type="radio"
+                  name="isPercentage"
+                  checked={Boolean(isPercentage)}
+                  disabled={isSubmitting}
+                  onChange={() => handlePercentageChange(true)}
+                />
                 <span className="text-font-2 text-[var(--color-gray)]">Persentase (%)</span>
               </label>
             </div>
           </div>
 
-          {/* Nominal */}
+          {/* Nominal / Persentase */}
           <div className="flex flex-col gap-2">
             <label htmlFor="amount" className="text-font-2 font-bold text-[var(--mama-brown)]">
               {isPercentage ? "Persentase (%)" : "Nominal (Rp)"}
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-gray)] font-semibold">{isPercentage ? "%" : "Rp"}</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-gray)] font-semibold">
+                {isPercentage ? "%" : "Rp"}
+              </span>
               <input
                 id="amount"
                 type="number"
@@ -126,7 +148,9 @@ export const PromoEditForm = ({ initialData }: PromoEditFormProps) => {
                 {...register("amount", {
                   required: "Nominal wajib diisi",
                   valueAsNumber: true,
-                  validate: (v) => (isPercentage ? v > 0 && v <= 100 : v > 0) || (isPercentage ? "Persentase harus 1–100" : "Nominal harus lebih dari 0"),
+                  validate: (v) =>
+                    (isPercentage ? v > 0 && v <= 100 : v > 0) ||
+                    (isPercentage ? "Persentase harus 1–100" : "Nominal harus lebih dari 0"),
                 })}
               />
             </div>
@@ -139,7 +163,9 @@ export const PromoEditForm = ({ initialData }: PromoEditFormProps) => {
             <label className="relative inline-flex items-center cursor-pointer w-max group">
               <input type="checkbox" className="sr-only peer" disabled={isSubmitting} {...register("isActive")} />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--mama-pink)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--mama-hot-pink)] disabled:opacity-50 disabled:cursor-not-allowed group-hover:after:scale-95"></div>
-              <span className={`ml-3 text-font-2 font-medium transition-colors ${isActiveValue ? "text-[var(--mama-hot-pink)]" : "text-gray-500"}`}>{isActiveValue ? "Aktif" : "Tidak Aktif"}</span>
+              <span className={`ml-3 text-font-2 font-medium transition-colors ${isActiveValue ? "text-[var(--mama-hot-pink)]" : "text-gray-500"}`}>
+                {isActiveValue ? "Aktif" : "Tidak Aktif"}
+              </span>
             </label>
           </div>
         </div>
@@ -156,7 +182,7 @@ export const PromoEditForm = ({ initialData }: PromoEditFormProps) => {
                 Menyimpan...
               </>
             ) : (
-              "Buat Promo"
+              "Simpan Perubahan"
             )}
           </button>
           <button

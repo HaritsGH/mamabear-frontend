@@ -8,6 +8,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import Link from "next/link";
 import { ChatRecommendationCards } from "@/features/chat/components/ChatRecommendationCards";
 import { parseRecommendationSlugs } from "@/features/chat/utils/recommendations";
+import ReactMarkdown from "react-markdown";
 
 const formatTitle = (session: ChatSession) => {
   const date = new Date(session.createdAt);
@@ -149,7 +150,7 @@ export default function ChatWidget() {
                       <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                         <div className="max-w-[85%]">
                           <div className={`rounded-2xl px-3 py-2 text-xs whitespace-pre-wrap break-words ${message.role === "user" ? "bg-[var(--mama-hot-pink)] text-white rounded-br-sm" : "bg-gray-100 text-gray-800 rounded-bl-sm"}`}>
-                            <p>{parsed ? parsed.text : message.content}</p>
+                            <ReactMarkdown>{parsed ? parsed.text : message.content}</ReactMarkdown>
                             <p className={`text-[10px] mt-1 ${message.role === "user" ? "text-white/70" : "text-gray-400"}`}>{formatTime(message.createdAt)}</p>
                           </div>
                           {parsed && parsed.slugs.length > 0 && <ChatRecommendationCards slugs={parsed.slugs} />}

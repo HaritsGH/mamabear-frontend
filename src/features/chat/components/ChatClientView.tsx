@@ -8,6 +8,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ChatSession } from "../types/chat.types";
 import { ChatRecommendationCards } from "./ChatRecommendationCards";
 import { parseRecommendationSlugs } from "../utils/recommendations";
+import ReactMarkdown from "react-markdown";
 
 function SessionList({ sessions, activeSessionId, isLoadingSessions, onSelect }: { sessions: ChatSession[]; activeSessionId: string | null; isLoadingSessions: boolean; onSelect: (sessionId: string) => void }) {
   if (isLoadingSessions) {
@@ -86,7 +87,7 @@ export function ChatClientView() {
   if (!isLoggedIn) {
     return (
       <main className="min-h-screen bg-white px-4 sm:px-6 pt-10">
-        <h1 className="text-font-6 font-bold text-[var(--mama-brown)] mb-8">Online Chat</h1>
+        <h1 className="text-font-1 md:text-font-6 font-bold text-[var(--mama-brown)] mb-8">Mamabear Ai Asistant</h1>
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <MessageCircle size={80} className="text-gray-200 mb-6" />
           <h2 className="text-font-4 font-bold text-[var(--mama-brown)] mb-2">Silakan login dulu</h2>
@@ -103,20 +104,20 @@ export function ChatClientView() {
     <div className="bg-white">
       <div className="py-8 px-4 sm:px-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-font-6 font-bold text-[var(--mama-brown)]">Online Chat</h1>
+          <h1 className="text-font-2 md:text-font-6 font-bold text-[var(--mama-brown)]">Mamabear Ai Asistant</h1>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setMobileHistoryOpen(true)}
-              className="lg:hidden flex items-center gap-2 bg-white border border-gray-200 hover:border-[var(--mama-hot-pink)] text-[var(--mama-brown)] rounded-full px-4 py-2 text-font-2 font-bold transition-colors"
+              className="lg:hidden flex items-center gap-2 bg-white border border-gray-200 hover:border-[var(--mama-hot-pink)] text-[var(--mama-brown)] rounded-full px-2 py-1 text-font-1 font-bold transition-colors"
             >
-              <History size={18} /> Riwayat
+              <History size={18} /> <span className="hidden md:block">Riwayat</span>
             </button>
             <button
               onClick={startNewSession}
               disabled={isSending}
-              className="flex items-center gap-2 bg-[var(--mama-hot-pink)] hover:bg-[#c24467] disabled:opacity-60 text-white rounded-full px-4 py-2 text-font-2 font-bold transition-colors"
+              className="flex items-center gap-1 md:gap-2 bg-[var(--mama-hot-pink)] hover:bg-[#c24467] disabled:opacity-60 text-white rounded-full px-2 py-1 text-font-1 font-bold transition-colors"
             >
-              <Plus size={18} /> Chat Baru
+              <Plus size={18} /> <span className="hidden md:block">Chat Baru</span>
             </button>
           </div>
         </div>
@@ -151,11 +152,11 @@ export function ChatClientView() {
                   return (
                     <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                       <div
-                        className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-font-2 whitespace-pre-wrap break-words ${
+                        className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-font-1 md:text-font-2 whitespace-pre-wrap break-words ${
                           message.role === "user" ? "bg-[var(--mama-hot-pink)] text-white rounded-br-sm" : "bg-white border border-gray-100 rounded-bl-sm shadow-sm text-gray-800"
                         }`}
                       >
-                        <p>{parsed ? parsed.text : message.content}</p>
+                        <ReactMarkdown>{parsed ? parsed.text : message.content}</ReactMarkdown>
                         <p className={`text-[11px] mt-1 ${message.role === "user" ? "text-white/70" : "text-gray-400"}`}>{formatTime(message.createdAt)}</p>
                         {parsed && parsed.slugs.length > 0 && <ChatRecommendationCards slugs={parsed.slugs} />}
                       </div>
@@ -187,12 +188,12 @@ export function ChatClientView() {
                   }}
                   rows={1}
                   placeholder="Tulis pertanyaan Mama..."
-                  className="flex-1 resize-none rounded-2xl border border-gray-200 focus:border-[var(--mama-hot-pink)] focus:ring-0 px-4 py-3 text-font-2 outline-none transition-colors max-h-32"
+                  className="flex-1 resize-none rounded-2xl border border-gray-200 focus:border-[var(--mama-hot-pink)] focus:ring-0 px-2 md:px-4 py-1 md:py-3 text-font-1 md:text-font-2 outline-none transition-colors max-h-32"
                 />
                 <button
                   onClick={handleSend}
                   disabled={isSending || !input.trim()}
-                  className="flex items-center gap-2 bg-[var(--mama-hot-pink)] hover:bg-[#c24467] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-full px-5 py-3 font-bold text-font-2 transition-colors"
+                  className="flex items-center gap-2 bg-[var(--mama-hot-pink)] hover:bg-[#c24467] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-full px-2 md:px-5 py-1 md:py-3 font-bold md:text-font-2 text-font-1 transition-colors"
                 >
                   <Send size={18} />
                 </button>

@@ -2,18 +2,17 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getOrderById } from "@/features/orders/services/orderService";
 import { CheckoutStepper } from "@/features/checkout/components/shared/CheckoutStepper";
+import { checkPaymentStatus } from "../services/paymentService";
+import { consumePromo } from "@/features/admin/promos/services/PromoService";
 
 interface CheckoutPaymentViewProps {
   orderId: string;
   initialPaymentUrl: string | null;
+  initialPromoCode?: string | null;
 }
 
-export function CheckoutPaymentView({
-  orderId,
-  initialPaymentUrl,
-}: CheckoutPaymentViewProps) {
+export function CheckoutPaymentView({ orderId, initialPaymentUrl, initialPromoCode }: CheckoutPaymentViewProps) {
   const router = useRouter();
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -23,19 +22,15 @@ export function CheckoutPaymentView({
     setErrorMessage(null);
 
     try {
-      const order = await getOrderById(orderId);
+      const order = await checkPaymentStatus(orderId);
 
-      // Check if order state is successfully paid
-      if (
-        order.status === "PAYMENT_PAID" ||
-        order.status === "CONFIRMED" ||
-        order.status === "PROCESSED"
-      ) {
+      if (order.status === "PAYMENT_PAID" || order.status === "CONFIRMED" || order.status === "PROCESSED") {
+        if (initialPromoCode) {
+          consumePromo(initialPromoCode).catch(() => {});
+        }
         router.push(`/checkout/success/${orderId}`);
       } else {
-        setErrorMessage(
-          "Status pembayaran masih tertunda. Silakan selesaikan pembayaran di halaman Midtrans terlebih dahulu.",
-        );
+        setErrorMessage("Status pembayaran masih tertunda. Silakan selesaikan pembayaran di halaman Midtrans terlebih dahulu.");
       }
     } catch (error) {
       console.error("Failed to check payment status:", error);
@@ -47,20 +42,13 @@ export function CheckoutPaymentView({
 
   return (
     <div className="w-full animate-fade-in">
-      <h1 className="text-font-5 font-bold text-[var(--mama-brown)] mb-8">
-        Check Out
-      </h1>
+      <h1 className="text-font-5 font-bold text-[var(--mama-brown)] mb-8">Check Out</h1>
 
       <CheckoutStepper activeStep={2} />
 
       <div className="max-w-2xl mx-auto py-12 px-6 bg-white border border-gray-200 rounded-2xl shadow-sm text-center">
-        <h2 className="text-font-4 font-bold text-[var(--mama-brown)] mb-4">
-          Menunggu Pembayaran
-        </h2>
-        <p className="text-font-2 text-gray-500 mb-8 max-w-md mx-auto">
-          Silakan selesaikan pembayaran Anda melalui portal pembayaran aman
-          kami. Jendela pembayaran dapat dibuka melalui tombol di bawah ini.
-        </p>
+        <h2 className="text-font-4 font-bold text-[var(--mama-brown)] mb-4">Menunggu Pembayaran</h2>
+        <p className="text-font-2 text-gray-500 mb-8 max-w-md mx-auto">Silakan selesaikan pembayaran Anda melalui portal pembayaran aman kami. Jendela pembayaran dapat dibuka melalui tombol di bawah ini.</p>
 
         {errorMessage && (
           <div className="mb-8 p-4 bg-red-50 text-red-600 rounded-lg border border-red-200 inline-block text-left w-full max-w-md">

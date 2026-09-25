@@ -11,6 +11,8 @@ interface CheckoutConfirmationViewProps {
 }
 
 const PAID_STATUSES = ["PAYMENT_PAID", "CONFIRMED", "PROCESSED"];
+const MAX_POLL_ATTEMPTS = 4;
+const RETRY_DELAYS = [1000, 2000, 4000]; // jeda antar percobaan 1s, 2s, 4s
 
 export function CheckoutConfirmationView({ orderId }: CheckoutConfirmationViewProps) {
   const [isPaid, setIsPaid] = useState<boolean | null>(null);
@@ -18,28 +20,27 @@ export function CheckoutConfirmationView({ orderId }: CheckoutConfirmationViewPr
   useEffect(() => {
     let cancelled = false;
 
-    const sync = async () => {
-      for (let i = 0; i < 4; i++) {
+    const poll = async () => {
+      for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
         try {
           const order = await checkPaymentStatus(orderId);
+          const paid = PAID_STATUSES.includes(order.status);
           if (!cancelled) {
-            setIsPaid(PAID_STATUSES.includes(order.status));
-            if (isPaidByUs(PAID_STATUSES.includes(order.status))) return;
+            setIsPaid(paid);
+            if (paid) return;
           }
-        } catch (error) {
-          // retry
+        } catch {
+          // gagal — lanjut percobaan berikutnya
         }
-        await new Promise((r) => setTimeout(r, 3000));
+        if (cancelled) return;
+        if (attempt < RETRY_DELAYS.length) {
+          await new Promise((r) => setTimeout(r, RETRY_DELAYS[attempt]));
+        }
       }
       if (!cancelled) setIsPaid(false);
     };
 
-    // helper agar logika jelas
-    function isPaidByUs(paid: boolean) {
-      return paid;
-    }
-
-    sync();
+    poll();
     return () => {
       cancelled = true;
     };

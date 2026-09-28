@@ -1,0 +1,53 @@
+---
+title: Getting Started
+description: Install, configure, and run the MamaBear frontend locally.
+---
+
+## Prerequisites
+
+- Node.js 18 or newer
+- npm
+- The sibling `mamabear-backend` repository when working on API-backed flows
+
+## Install
+
+```bash
+git clone https://github.com/HaritsGH/mamabear-frontend.git
+cd mamabear-frontend
+npm install
+```
+
+## Configure the environment
+
+Copy the example file and replace placeholder values locally:
+
+```bash
+cp .env.example .env.local
+```
+
+```env
+NEXT_PUBLIC_API_URL="http://localhost:3000/api"
+NEXTAUTH_SECRET="replace-with-a-long-random-local-secret"
+```
+
+Never commit `.env.local` or a real secret.
+
+## Run locally
+
+```bash
+npm run dev
+```
+
+The development server uses `http://localhost:3001`.
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Lint, then start the development server on port 3001 |
+| `npm run build` | Create a production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Run the Next.js ESLint checks |
+| `npm test` | Run the Jest suite |
+| `npm run test:watch` | Run Jest in watch mode |
+| `npm run generate:api` | Regenerate TypeScript definitions from the local sibling backend OpenAPI schema |

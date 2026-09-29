@@ -9,6 +9,7 @@ import {
     Truck,
     CreditCard,
     Percent,
+    Bot,
 } from "lucide-react";
 import { Setting } from "@/features/admin/settings/types/setting.types";
 import { useSettings } from "../hooks/useSetting";
@@ -16,12 +17,13 @@ import { ShippingTab } from "./ShippingTab";
 import { PaymentTab } from "./PaymentTab";
 import { TaxTab } from "./TaxTab";
 import { StoreTab } from "./StoreTab";
+import { AiModelTab } from "./AiModelTab";
 
 interface SettingsViewProps {
     initialSettings: Setting[];
 }
 
-type TabId = "store" | "shipping" | "payment" | "tax";
+type TabId = "store" | "shipping" | "payment" | "tax" | "ai-model";
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
     initialSettings,
@@ -48,6 +50,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             icon: <CreditCard className="w-4 h-4" />,
         },
         { id: "tax", label: "Pajak", icon: <Percent className="w-4 h-4" /> },
+        {
+            id: "ai-model",
+            label: "Model AI",
+            icon: <Bot className="w-4 h-4" />,
+        },
     ];
 
     return (
@@ -116,6 +123,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                         />
                     )}
                     {activeTab === "tax" && <TaxTab register={register} />}
+                    {activeTab === "ai-model" && <AiModelTab register={register} />}
 
                     {/* Form Actions */}
                     <div className="pt-6 border-t border-gray-100 flex justify-end">

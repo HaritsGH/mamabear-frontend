@@ -3,6 +3,8 @@
   --color-fd-ring: var(--mama-hot-pink);
   --color-fd-accent: var(--mama-cream);
   --color-fd-accent-foreground: var(--mama-brown);
+  background-color: hsl(var(--fd-background) / 1);
+  color: hsl(var(--fd-foreground) / 1);
   min-height: 100vh;
 }
 

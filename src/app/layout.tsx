@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Quicksand } from "next/font/google";
 import AuthProvider from "@/providers/AuthProvider";
 import {CartInitializer} from "@/features/cart/components/CartInitializer.ts";
+import { RootProvider } from "fumadocs-ui/provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -35,6 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
         geistSans.variable,
         geistMono.variable,
@@ -43,10 +45,12 @@ export default function RootLayout({
       )}
     >
       <body className={`${quicksand.variable} antialiased`}>
-        <AuthProvider>
-          <CartInitializer />
-          {children}
-        </AuthProvider>
+        <RootProvider>
+          <AuthProvider>
+            <CartInitializer />
+            {children}
+          </AuthProvider>
+        </RootProvider>
       </body>
     </html>
   );

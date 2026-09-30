@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { useCartStore } from "@/features/cart/store/use-cart-store";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export function CartInitializer() {
+  const pathname = usePathname();
   const { isLoggedIn } = useAuth();
   const mergeGuestCart = useCartStore((state) => state.mergeGuestCart);
   const initializeCart = useCartStore((state) => state.initializeCart);
@@ -13,6 +15,8 @@ export function CartInitializer() {
   const hasMerged = useRef(false);
 
   useEffect(() => {
+    if (pathname === "/docs" || pathname.startsWith("/docs/")) return;
+
     // 1. Unconditionally fetch cart on initial load (Guest or User)
     if (!hasInitialized.current) {
       hasInitialized.current = true;
@@ -38,7 +42,7 @@ export function CartInitializer() {
       // Re-initialize to fetch the new empty/guest cart state
       initializeCart();
     }
-  }, [isLoggedIn, mergeGuestCart, initializeCart]);
+  }, [isLoggedIn, mergeGuestCart, initializeCart, pathname]);
 
   return null;
 }

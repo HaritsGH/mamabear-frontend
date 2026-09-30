@@ -7,7 +7,8 @@ import { useChat } from "@/features/chat/hooks/useChat";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import Link from "next/link";
 import { ChatRecommendationCards } from "@/features/chat/components/ChatRecommendationCards";
-import { parseRecommendationSlugs } from "@/features/chat/utils/recommendations";
+import { parseAssistantMessage } from "@/features/chat/utils/recommendations";
+import { ChatContactCard } from "@/features/chat/components/ChatContactCard";
 
 const formatTitle = (session: ChatSession) => {
   const date = new Date(session.createdAt);
@@ -144,7 +145,7 @@ export default function ChatWidget() {
                   <p>Hi! Ada yang bisa dibantu?</p>
                 ) : (
                   messages.map((message) => {
-                    const parsed = message.role === "assistant" ? parseRecommendationSlugs(message.content) : null;
+                    const parsed = message.role === "assistant" ? parseAssistantMessage(message.content) : null;
                     return (
                       <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                         <div className="max-w-[85%]">
@@ -153,6 +154,7 @@ export default function ChatWidget() {
                             <p className={`text-[10px] mt-1 ${message.role === "user" ? "text-white/70" : "text-gray-400"}`}>{formatTime(message.createdAt)}</p>
                           </div>
                           {parsed && parsed.slugs.length > 0 && <ChatRecommendationCards slugs={parsed.slugs} />}
+                          {parsed?.contactPhone && <ChatContactCard phone={parsed.contactPhone} />}
                         </div>
                       </div>
                     );

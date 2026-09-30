@@ -1,4 +1,5 @@
 export const RECOMMENDATION_LINE = /^REKOMENDASI\s+PRODUK:[ \t]*([^\n]*)$/m;
+export const CONTACT_LINE = /^KONTAK\s+ADMIN:[ \t]*(62\d{8,13})[ \t]*$/m;
 
 export function parseRecommendationSlugs(content: string): {
   text: string;
@@ -25,4 +26,21 @@ export function formatIDR(value: number | string): string {
     currency: "IDR",
     minimumFractionDigits: 0,
   }).format(num);
+}
+
+export function parseAssistantMessage(content: string): {
+  text: string;
+  slugs: string[];
+  contactPhone: string | null;
+} {
+  const { text, slugs } = parseRecommendationSlugs(content);
+  const match = content.match(CONTACT_LINE);
+  return {
+    text: text
+      .replace(CONTACT_LINE, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim(),
+    slugs,
+    contactPhone: match ? match[1] : null,
+  };
 }

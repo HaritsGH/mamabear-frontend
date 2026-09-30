@@ -3,6 +3,7 @@ import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { source } from "@/lib/docs/source";
 import "./docs.css";
+import { RootProvider } from "fumadocs-ui/provider";
 
 const baseOptions: BaseLayoutProps = {
   nav: {
@@ -29,14 +30,14 @@ const baseOptions: BaseLayoutProps = {
   githubUrl: "https://github.com/HaritsGH/mamabear-frontend",
 };
 
-export default function DocumentationLayout({
-  children,
-}: Readonly<{ children: ReactNode }>) {
+export default function DocumentationLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div className="mamabear-docs">
-      <DocsLayout tree={source.pageTree} {...baseOptions}>
-        {children}
-      </DocsLayout>
+      <RootProvider>
+        <DocsLayout tree={source.pageTree} {...baseOptions}>
+          {children}
+        </DocsLayout>
+      </RootProvider>
     </div>
   );
 }

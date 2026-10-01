@@ -59,7 +59,7 @@ export const useSettings = (initialSettings: Setting[], managedKeys: string[] = 
       const settingsByKey = new Map(initialSettings.map((s) => [s.key, s]));
       // managedKeys ikut diproses walau belum ada di DB, supaya admin tetap
       // bisa mengisi key AI baru dan backend menyimpannya lewat upsert.
-      const keysToSync = new Set<string>([...settingsByKey.keys(), ...managedKeys]);
+      const keysToSync = Array.from(new Set<string>([...Array.from(settingsByKey.keys()), ...managedKeys]));
 
       const updatePromises: {
         key: string;

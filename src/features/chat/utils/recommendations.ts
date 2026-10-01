@@ -35,9 +35,11 @@ export function parseAssistantMessage(content: string): {
 } {
   const { text, slugs } = parseRecommendationSlugs(content);
   const match = content.match(CONTACT_LINE);
+  const CONTACT_LINE_ALL = new RegExp(CONTACT_LINE.source, "gm");
+
   return {
     text: text
-      .replace(CONTACT_LINE, "")
+      .replace(CONTACT_LINE_ALL, "")
       .replace(/\n{3,}/g, "\n\n")
       .trim(),
     slugs,

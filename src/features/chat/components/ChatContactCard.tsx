@@ -1,5 +1,4 @@
 import { ChevronRight, MessageSquareMore } from "lucide-react";
-import React from "react";
 
 function formatWaNumber(raw: string): string {
   const local = raw.replace(/\D/g, "").replace(/^62/, "");

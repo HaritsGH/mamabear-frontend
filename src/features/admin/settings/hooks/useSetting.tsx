@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useForm, FieldValues } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { updateSettingByKey } from "../services/settingService";
@@ -12,6 +12,16 @@ export const useSettings = (initialSettings: Setting[], managedKeys: string[] = 
   const [noChanges, setNoChanges] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(
+    () => () => {
+      timers.current.forEach(clearTimeout);
+    },
+    [],
+  );
+  const scheduleHide = (fn: () => void) => {
+    timers.current.push(setTimeout(fn, 3000));
+  };
 
   const mappedValues = useMemo(() => {
     const values: FieldValues = {};
@@ -36,7 +46,7 @@ export const useSettings = (initialSettings: Setting[], managedKeys: string[] = 
 
   const form = useForm<FieldValues>({
     defaultValues: mappedValues,
-    // values: mappedValues,
+    values: mappedValues,
   });
 
   const onSubmit = async (data: FieldValues) => {
@@ -72,15 +82,15 @@ export const useSettings = (initialSettings: Setting[], managedKeys: string[] = 
             newValue = JSON.stringify(JSON.parse(rawNew));
             originalValue = JSON.stringify(JSON.parse(setting?.value ?? ""));
           } catch {
-            newValue = String(rawNew);
+            newValue = String(rawNew ?? "");
           }
         } else if (setting?.type === "boolean" || typeof rawNew === "boolean") {
-          newValue = String(rawNew);
+          newValue = String(rawNew ?? "");
         } else if (typeof rawNew === "object" && rawNew !== null) {
           const extractedString = Object.values(rawNew)[0];
           newValue = extractedString ? String(extractedString) : "";
         } else {
-          newValue = String(rawNew);
+          newValue = String(rawNew ?? "");
         }
 
         if (originalValue === "[object Object]" && newValue !== "[object Object]") {
@@ -97,9 +107,9 @@ export const useSettings = (initialSettings: Setting[], managedKeys: string[] = 
 
       if (updatePromises.length === 0) {
         // Sebelumnya return tanpa apa-apa, jadi admin menekan Simpan dan
-        // tidak melihat apa pun terjadi. Sekarangogenesis diberi tahu.
+        // tidak melihat apa pun terjadi.
         setNoChanges(true);
-        setTimeout(() => setNoChanges(false), 3000);
+        scheduleHide(() => setNoChanges(false));
         return;
       }
 
@@ -116,15 +126,16 @@ export const useSettings = (initialSettings: Setting[], managedKeys: string[] = 
         .filter(({ result }) => result.status === "rejected");
 
       if (failed.length > 0) {
+        if (failed.length < results.length) router.refresh();
         setSubmitError(failed.length === results.length ? "Gagal menyimpan pengaturan. Coba lagi." : `Sebagian tersimpan, ${failed.length} gagal: ${failed.map((f) => f.key).join(", ")}`);
         return;
       }
 
-      form.reset(data);
+      //   form.reset(data);
       setSubmitSuccess(true);
       router.refresh();
 
-      setTimeout(() => setSubmitSuccess(false), 3000);
+      scheduleHide(() => setSubmitSuccess(false));
     } catch (error) {
       console.error("[useSettings] Error updating settings:", error);
       setSubmitError(error instanceof Error ? error.message : "Terjadi kesalahan saat menyimpan pengaturan.");

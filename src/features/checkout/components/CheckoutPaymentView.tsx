@@ -4,15 +4,14 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckoutStepper } from "@/features/checkout/components/shared/CheckoutStepper";
 import { checkPaymentStatus } from "../services/paymentService";
-import { consumePromo } from "@/features/admin/promos/services/PromoService";
+import { PAID_STATUSES } from "../types/payment.types";
 
 interface CheckoutPaymentViewProps {
   orderId: string;
   initialPaymentUrl: string | null;
-  initialPromoCode?: string | null;
 }
 
-export function CheckoutPaymentView({ orderId, initialPaymentUrl, initialPromoCode }: CheckoutPaymentViewProps) {
+export function CheckoutPaymentView({ orderId, initialPaymentUrl }: CheckoutPaymentViewProps) {
   const router = useRouter();
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -24,10 +23,7 @@ export function CheckoutPaymentView({ orderId, initialPaymentUrl, initialPromoCo
     try {
       const order = await checkPaymentStatus(orderId);
 
-      if (order.status === "PAYMENT_PAID" || order.status === "CONFIRMED" || order.status === "PROCESSED") {
-        if (initialPromoCode) {
-          consumePromo(initialPromoCode).catch(() => {});
-        }
+      if (PAID_STATUSES.includes(order.status)) {
         router.push(`/checkout/success/${orderId}`);
       } else {
         setErrorMessage("Status pembayaran masih tertunda. Silakan selesaikan pembayaran di halaman Midtrans terlebih dahulu.");
@@ -39,7 +35,6 @@ export function CheckoutPaymentView({ orderId, initialPaymentUrl, initialPromoCo
       setIsCheckingStatus(false);
     }
   };
-
   return (
     <div className="w-full animate-fade-in">
       <h1 className="text-font-5 font-bold text-[var(--mama-brown)] mb-8">Check Out</h1>

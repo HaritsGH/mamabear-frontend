@@ -5,36 +5,45 @@ import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { CheckoutStepper } from "@/features/checkout/components/shared/CheckoutStepper";
 import { checkPaymentStatus } from "../services/paymentService";
+import { PAID_STATUSES } from "../types/payment.types";
 
 interface CheckoutConfirmationViewProps {
   orderId: string;
 }
 
-const PAID_STATUSES = ["PAYMENT_PAID", "CONFIRMED", "PROCESSED"];
 const MAX_POLL_ATTEMPTS = 4;
 const RETRY_DELAYS = [1000, 2000, 4000]; // jeda antar percobaan 1s, 2s, 4s
 
 export function CheckoutConfirmationView({ orderId }: CheckoutConfirmationViewProps) {
   const [isPaid, setIsPaid] = useState<boolean | null>(null);
+  const [retryToken, setRetryToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const sleep = (ms: number) =>
+      new Promise<void>((resolve) => {
+        timer = setTimeout(resolve, ms);
+      });
 
     const poll = async () => {
       for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+        if (cancelled) return;
+
         try {
           const order = await checkPaymentStatus(orderId);
-          const paid = PAID_STATUSES.includes(order.status);
-          if (!cancelled) {
-            setIsPaid(paid);
-            if (paid) return;
+          if (!cancelled && PAID_STATUSES.includes(order.status)) {
+            setIsPaid(true);
+            return;
           }
         } catch {
           // gagal — lanjut percobaan berikutnya
         }
+
         if (cancelled) return;
-        if (attempt < RETRY_DELAYS.length) {
-          await new Promise((r) => setTimeout(r, RETRY_DELAYS[attempt]));
+        if (attempt < MAX_POLL_ATTEMPTS - 1) {
+          await sleep(RETRY_DELAYS[attempt] ?? RETRY_DELAYS[RETRY_DELAYS.length - 1]);
         }
       }
       if (!cancelled) setIsPaid(false);
@@ -43,8 +52,15 @@ export function CheckoutConfirmationView({ orderId }: CheckoutConfirmationViewPr
     poll();
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
     };
-  }, [orderId]);
+  }, [orderId, retryToken]);
+
+  const handleRecheck = () => {
+    setIsPaid(null);
+    setRetryToken((t) => t + 1);
+  };
+
   return (
     <div className="w-full animate-fade-in">
       <h1 className="text-font-5 font-bold text-[var(--mama-brown)] mb-8">Check Out</h1>
@@ -66,7 +82,11 @@ export function CheckoutConfirmationView({ orderId }: CheckoutConfirmationViewPr
         ) : (
           <>
             <h2 className="text-font-4 font-bold text-[var(--mama-brown)]">Menunggu Konfirmasi Pembayaran</h2>
-            <p className="text-font-2 text-gray-600 max-w-sm mx-auto">Status pembayaran belum terkonfirmasi. Silakan cek daftar pesanan Anda untuk status terbaru.</p>
+            <p className="text-font-2 text-gray-500 max-w-sm mx-auto">Status pembayaran belum terkonfirmasi. Silakan cek daftar pesanan Anda untuk status terbaru.</p>
+            <p className="text-font-1 text-gray-400">ID Pesanan: {orderId}</p>
+            <button onClick={handleRecheck} className="inline-block bg-[var(--mama-pink)] hover:bg-[#f5b8c9] text-[var(--mama-brown)] font-bold py-3 px-8 rounded-full transition-colors text-font-2">
+              Cek Ulang
+            </button>
           </>
         )}
 

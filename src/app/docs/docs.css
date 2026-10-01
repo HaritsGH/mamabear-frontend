@@ -1,14 +1,16 @@
 .mamabear-docs {
-  --color-fd-primary: var(--mama-hot-pink);
-  --color-fd-ring: var(--mama-hot-pink);
-  --color-fd-accent: var(--mama-cream);
-  --color-fd-accent-foreground: var(--mama-brown);
+  --fd-primary: var(--mama-hot-pink);
+  --fd-ring: var(--mama-hot-pink);
+  --fd-accent: var(--mama-cream);
+  --fd-accent-foreground: var(--mama-brown);
+  background-color: hsl(var(--fd-background) / 1);
+  color: hsl(var(--fd-foreground) / 1);
   min-height: 100vh;
 }
 
 .dark .mamabear-docs {
-  --color-fd-primary: #f08cac;
-  --color-fd-ring: #f08cac;
-  --color-fd-accent: #3b2924;
-  --color-fd-accent-foreground: #fff3ed;
+  --fd-primary: #f08cac;
+  --fd-ring: #f08cac;
+  --fd-accent: #3b2924;
+  --fd-accent-foreground: #fff3ed;
 }

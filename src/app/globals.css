@@ -9,7 +9,7 @@ html body {
   background-color: oklch(var(--background));
   color: var(--mama-brown);
 }
-.dark [role="dialog"] input[placeholder="Search"]:focus-visible {
+[role="dialog"] input[placeholder="Search"]:focus-visible {
   box-shadow: none;
 }
 @layer utilities {

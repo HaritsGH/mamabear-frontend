@@ -6,10 +6,12 @@
 @tailwind utilities;
 
 html body {
-  background-color: #fff;
+  background-color: oklch(var(--background));
   color: var(--mama-brown);
 }
-
+.dark [role="dialog"] input[placeholder="Search"]:focus-visible {
+  box-shadow: none;
+}
 @layer utilities {
   .text-balance {
     text-wrap: balance;

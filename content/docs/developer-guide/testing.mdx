@@ -1,0 +1,38 @@
+---
+title: Testing
+description: Run and extend MamaBear unit, component, hook, service, and integration checks.
+---
+
+MamaBear uses Jest, the jsdom environment, and Testing Library. Existing tests cover shared UI, authentication and cart hooks, cart and chat services, Zustand stores, order formatting, currency, and general formatters.
+
+## Run tests
+
+```bash
+npm test
+```
+
+Run one test file while developing:
+
+```bash
+npm test -- --runInBand src/features/cart/services/cartService.test.ts
+```
+
+Use watch mode for a focused feedback loop:
+
+```bash
+npm run test:watch
+```
+
+## Quality gates
+
+Before handing off a change, run:
+
+```bash
+npm test -- --runInBand
+npm run lint
+npm run build
+```
+
+Write tests against observable behavior rather than internal implementation details. A bug fix should begin with a failing reproduction. New feature behavior should begin with a failing test that names the regression it protects against. Configuration and MDX changes must at minimum compile in a production build and be inspected in the browser.
+
+When user-visible behavior changes, update the relevant guide in the same branch.

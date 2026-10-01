@@ -1,0 +1,37 @@
+---
+title: Frontend Architecture
+description: Understand MamaBear routes, feature modules, shared UI, state, and API boundaries.
+---
+
+MamaBear uses Next.js 14 with the App Router and TypeScript. Code is organized primarily by product feature, with shared UI and infrastructure kept outside feature folders.
+
+## Route boundaries
+
+```text
+src/app/
+├── (auth)/        authentication and recovery pages
+├── (shop)/        storefront, checkout, chat, and customer account
+├── admin/         role-protected operations interface
+├── api/auth/      NextAuth route handler
+└── docs/          product and developer documentation
+```
+
+Route groups keep URLs clean: `(auth)` and `(shop)` do not appear in browser paths.
+
+## Feature modules
+
+`src/features` groups components, hooks, services, types, stores, and utilities by capability. Customer modules cover account, address, authentication, cart, categories, chat, checkout, home, orders, and products. The `admin` subtree owns dashboard, product, category, promotion, order, customer, reporting, settings, and user management.
+
+## Shared layers
+
+- `src/components` contains reusable layout and UI primitives.
+- `src/lib` contains authentication, configuration, API, and utility boundaries.
+- `src/store` contains application-wide Zustand state; feature-local stores remain with their feature.
+- `src/types` contains shared and generated API types.
+- `src/middleware.ts` protects authenticated and role-specific routes.
+
+## Data flow
+
+Pages compose feature components. Hooks coordinate view state and feature services. Services call the backend through the shared authenticated client or feature-specific fetch logic. Zustand stores retain client state that must be shared across components, such as cart or UI state.
+
+Keep new behavior in the narrowest feature module that owns it. Promote code to shared folders only when multiple unrelated features genuinely consume it.

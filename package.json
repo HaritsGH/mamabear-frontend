@@ -9,14 +9,19 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "generate:api": "openapi-typescript https://mamabear-backend-dev.up.railway.app/api-json -o ./src/types/openapi/api.d.ts"
+    "postinstall": "fumadocs-mdx",
+    "generate:api": "openapi-typescript http://localhost:3000/api-json -o ./src/types/openapi/api.d.ts"
   },
   "dependencies": {
+    "@types/mdx": "2.0.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",
+    "fumadocs-core": "14.7.7",
+    "fumadocs-mdx": "11.0.0",
+    "fumadocs-ui": "14.7.7",
     "jspdf": "^4.2.1",
-    "lucide-react": "^1.14.0",
+    "lucide-react": "0.473.0",
     "next": "14.2.35",
     "next-auth": "^4.24.14",
     "next-themes": "^0.4.6",

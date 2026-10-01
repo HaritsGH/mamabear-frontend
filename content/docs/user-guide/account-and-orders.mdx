@@ -1,0 +1,26 @@
+---
+title: Account, Addresses, and Orders
+description: Maintain customer information, saved delivery addresses, order history, and invoices.
+---
+
+Account pages require an authenticated customer session.
+
+## Account information
+
+Open `/account/info` to review the profile information associated with the current account. Authentication details remain managed by the sign-in and recovery flows.
+
+## Delivery addresses
+
+Open `/account/addresses` to see saved addresses.
+
+- Use `/account/addresses/new` to add an address.
+- Open `/account/addresses/[id]/edit` to update an existing address.
+- Choose an address label that helps distinguish home, office, family, or another delivery location.
+
+Accurate recipient, phone, and regional information helps the checkout flow return valid shipping choices.
+
+## Orders
+
+Open `/account/orders` for order history and `/account/orders/[id]` for items, pricing, status, and timeline details. Order formatting reflects the status returned by the backend.
+
+When available for the order, use the invoice download action to generate a PDF copy in the browser.

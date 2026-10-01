@@ -1,0 +1,25 @@
+---
+title: Authentication
+description: Create, verify, access, and recover a MamaBear customer account.
+---
+
+## Create an account
+
+Open `/register`, enter your account information, and submit the form. Phone-number fields accept numeric input validated by the registration flow. After registration, follow the email verification instructions before signing in.
+
+## Verify your email
+
+The verification link opens `/auth/verify-email`. The page validates the token carried by the link and reports whether verification succeeded. If the link is invalid or expired, request a new verification flow rather than editing its URL.
+
+## Sign in
+
+Open `/login` and use the credentials created during registration. A successful login creates a MamaBear session and returns you to the application. Protected account, checkout, and administration pages redirect unauthenticated visitors to login.
+
+## Recover a password
+
+1. Open `/forgot-password` and submit the email address associated with the account.
+2. Use the reset link sent by the service.
+3. The link opens `/auth/reset-password`, where you can choose a new password.
+4. Return to `/login` and sign in with the new password.
+
+For security, MamaBear does not reveal access or refresh tokens in the interface.

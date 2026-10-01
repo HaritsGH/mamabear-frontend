@@ -7,8 +7,8 @@ import { useChat } from "../hooks/useChat";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ChatSession } from "../types/chat.types";
 import { ChatRecommendationCards } from "./ChatRecommendationCards";
-import { parseRecommendationSlugs } from "../utils/recommendations";
-import ReactMarkdown from "react-markdown";
+import { parseAssistantMessage } from "../utils/recommendations";
+import { ChatContactCard } from "./ChatContactCard";
 
 function SessionList({ sessions, activeSessionId, isLoadingSessions, onSelect }: { sessions: ChatSession[]; activeSessionId: string | null; isLoadingSessions: boolean; onSelect: (sessionId: string) => void }) {
   if (isLoadingSessions) {
@@ -147,7 +147,7 @@ export function ChatClientView() {
                 </div>
               ) : (
                 messages.map((message) => {
-                  const parsed = message.role === "assistant" ? parseRecommendationSlugs(message.content) : null;
+                  const parsed = message.role === "assistant" ? parseAssistantMessage(message.content) : null;
 
                   return (
                     <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -159,6 +159,7 @@ export function ChatClientView() {
                         <ReactMarkdown>{parsed ? parsed.text : message.content}</ReactMarkdown>
                         <p className={`text-[11px] mt-1 ${message.role === "user" ? "text-white/70" : "text-gray-400"}`}>{formatTime(message.createdAt)}</p>
                         {parsed && parsed.slugs.length > 0 && <ChatRecommendationCards slugs={parsed.slugs} />}
+                        {parsed?.contactPhone && <ChatContactCard phone={parsed.contactPhone} />}
                       </div>
                     </div>
                   );

@@ -1,0 +1,26 @@
+---
+title: Authentication and Authorization
+description: Follow the NextAuth credentials, token refresh, session, and role-protection flow.
+---
+
+MamaBear uses NextAuth with a credentials provider backed by the MamaBear API.
+
+## Sign-in flow
+
+1. The credentials provider submits the login request to the backend.
+2. A successful response supplies access and refresh tokens.
+3. The frontend decodes account information, including the role, into the NextAuth token.
+4. The JWT callback retains authentication data and refreshes an expired access token through `/auth/refresh`.
+5. The session callback exposes the supported user, role, access-token, and error information to the application.
+
+If refresh fails, the token receives `RefreshAccessTokenError`. Middleware redirects the visitor to `/login` and removes session cookies so the application cannot remain stuck with an invalid session.
+
+## Protected routes
+
+Middleware requires a session for `/account/:path*`, `/admin/:path*`, and the configured dashboard matcher. Requests without a token use `/login` as the sign-in page.
+
+Admin paths require a role of `ADMIN` or `SUPERADMIN`. Authenticated users with other roles are redirected to `/`.
+
+## Authenticated API calls
+
+Client components use `fetchWrapper` or `apiClient`. The wrapper retrieves the current session and adds `Authorization: Bearer <access token>` when a token is available. Never log or add access and refresh tokens to documentation, tests, fixtures, or committed environment files.

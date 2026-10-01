@@ -4,7 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Quicksand } from "next/font/google";
 import AuthProvider from "@/providers/AuthProvider";
-import {CartInitializer} from "@/features/cart/components/CartInitializer.ts";
+import { CartInitializer } from "@/features/cart/components/CartInitializer.ts";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,15 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={cn(
-        geistSans.variable,
-        geistMono.variable,
-        quicksand.variable,
-        "font-sans",
-      )}
-    >
+    <html lang="en" suppressHydrationWarning className={cn(geistSans.variable, geistMono.variable, quicksand.variable, "font-sans")}>
       <body className={`${quicksand.variable} antialiased`}>
         <AuthProvider>
           <CartInitializer />

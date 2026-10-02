@@ -9,6 +9,7 @@ import { ChatSession } from "../types/chat.types";
 import { ChatRecommendationCards } from "./ChatRecommendationCards";
 import { parseAssistantMessage } from "../utils/recommendations";
 import { ChatContactCard } from "./ChatContactCard";
+import ReactMarkdown from "react-markdown";
 
 function SessionList({ sessions, activeSessionId, isLoadingSessions, onSelect }: { sessions: ChatSession[]; activeSessionId: string | null; isLoadingSessions: boolean; onSelect: (sessionId: string) => void }) {
   if (isLoadingSessions) {
@@ -40,7 +41,7 @@ const formatTitle = (session: ChatSession) => {
   const date = new Date(session.createdAt);
   const day = date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
   const time = date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-  return `Chat ${day} • ${time}`;
+  return `Chat ${day} â€¢ ${time}`;
 };
 
 const formatTime = (iso: string) => {
@@ -234,3 +235,7 @@ export function ChatClientView() {
     </div>
   );
 }
+
+
+
+

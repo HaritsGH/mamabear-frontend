@@ -9,12 +9,13 @@ import Link from "next/link";
 import { ChatRecommendationCards } from "@/features/chat/components/ChatRecommendationCards";
 import { parseAssistantMessage } from "@/features/chat/utils/recommendations";
 import { ChatContactCard } from "@/features/chat/components/ChatContactCard";
+import ReactMarkdown from "react-markdown";
 
 const formatTitle = (session: ChatSession) => {
   const date = new Date(session.createdAt);
   const day = date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
   const time = date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-  return `Chat ${day} • ${time}`;
+  return `Chat ${day} â€¢ ${time}`;
 };
 
 const formatTime = (iso: string) => {

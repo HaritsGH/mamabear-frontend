@@ -15,7 +15,7 @@ const formatTitle = (session: ChatSession) => {
   const date = new Date(session.createdAt);
   const day = date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
   const time = date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-  return `Chat ${day} â€¢ ${time}`;
+  return `Chat ${day} ${time}`;
 };
 
 const formatTime = (iso: string) => {
@@ -33,6 +33,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const messagesRef = useRef<HTMLDivElement>(null);
   const openedOnce = useRef(false);
+  const autoSelectedRef = useRef(false);
 
   useEffect(() => {
     if (open && isLoggedIn && !openedOnce.current) {
@@ -42,7 +43,8 @@ export default function ChatWidget() {
   }, [open, isLoggedIn, loadSessions]);
 
   useEffect(() => {
-    if (open && sessions.length > 0 && !activeSessionId) {
+    if (open && sessions.length > 0 && !activeSessionId && !autoSelectedRef.current) {
+      autoSelectedRef.current = true;
       selectSession(sessions[0].id);
     }
   }, [open, sessions, activeSessionId, selectSession]);

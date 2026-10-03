@@ -19,6 +19,7 @@ export const PromoEditForm = ({ initialData }: PromoEditFormProps) => {
     handleSubmit,
     watch,
     setValue,
+    getValues,
     trigger,
     formState: { errors, isSubmitting },
   } = useForm<PromoFormValues>({
@@ -38,8 +39,8 @@ export const PromoEditForm = ({ initialData }: PromoEditFormProps) => {
     setValue("code", e.target.value.toUpperCase(), { shouldValidate: true });
 
   const handlePercentageChange = (value: boolean) => {
-    setValue("isPercentage", value, { shouldValidate: true, shouldDirty: true });
-    // Trigger revalidasi amount saat berpindah tipe
+    setValue("isPercentage", value, { shouldDirty: true });
+    // Revalidasi amount memakai tipe terkini (dibaca via getValues di validator)
     trigger("amount");
   };
 
@@ -148,9 +149,10 @@ export const PromoEditForm = ({ initialData }: PromoEditFormProps) => {
                 {...register("amount", {
                   required: "Nominal wajib diisi",
                   valueAsNumber: true,
-                  validate: (v) =>
-                    (isPercentage ? v > 0 && v <= 100 : v > 0) ||
-                    (isPercentage ? "Persentase harus 1–100" : "Nominal harus lebih dari 0"),
+                  validate: (v) => {
+                    const pct = getValues("isPercentage");
+                    return (pct ? v > 0 && v <= 100 : v > 0) || (pct ? "Persentase harus 1–100" : "Nominal harus lebih dari 0");
+                  },
                 })}
               />
             </div>

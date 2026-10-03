@@ -16,6 +16,7 @@ export const PromoCreateForm = () => {
     handleSubmit,
     watch,
     setValue,
+    getValues,
     trigger,
     formState: { errors, isSubmitting },
   } = useForm<PromoFormValues>({
@@ -25,12 +26,11 @@ export const PromoCreateForm = () => {
   const isPercentage = watch("isPercentage");
   const isActiveValue = watch("isActive");
 
-  const normalizeCode = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setValue("code", e.target.value.toUpperCase(), { shouldValidate: true });
+  const normalizeCode = (e: React.ChangeEvent<HTMLInputElement>) => setValue("code", e.target.value.toUpperCase(), { shouldValidate: true });
 
   const handlePercentageChange = (value: boolean) => {
-    setValue("isPercentage", value, { shouldValidate: true, shouldDirty: true });
-    // Trigger revalidasi amount saat berpindah tipe
+    setValue("isPercentage", value, { shouldDirty: true });
+    // Revalidasi amount memakai tipe terkini (dibaca via getValues di validator)
     trigger("amount");
   };
 
@@ -98,23 +98,11 @@ export const PromoCreateForm = () => {
             <label className="text-font-2 font-bold text-[var(--mama-brown)]">Tipe Promo</label>
             <div className="flex gap-6">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="isPercentage"
-                  checked={!isPercentage}
-                  disabled={isSubmitting}
-                  onChange={() => handlePercentageChange(false)}
-                />
+                <input type="radio" name="isPercentage" checked={!isPercentage} disabled={isSubmitting} onChange={() => handlePercentageChange(false)} />
                 <span className="text-font-2 text-[var(--color-gray)]">Nominal (Rp)</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="isPercentage"
-                  checked={Boolean(isPercentage)}
-                  disabled={isSubmitting}
-                  onChange={() => handlePercentageChange(true)}
-                />
+                <input type="radio" name="isPercentage" checked={Boolean(isPercentage)} disabled={isSubmitting} onChange={() => handlePercentageChange(true)} />
                 <span className="text-font-2 text-[var(--color-gray)]">Persentase (%)</span>
               </label>
             </div>
@@ -126,22 +114,21 @@ export const PromoCreateForm = () => {
               {isPercentage ? "Persentase (%)" : "Nominal (Rp)"}
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-gray)] font-semibold">
-                {isPercentage ? "%" : "Rp"}
-              </span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-gray)] font-semibold">{isPercentage ? "%" : "Rp"}</span>
               <input
                 id="amount"
                 type="number"
-                min={isPercentage ? 1 : 0.01}
+                min={isPercentage ? 1 : 1}
                 max={isPercentage ? 100 : undefined}
                 disabled={isSubmitting}
                 className="w-full pl-14 pr-4 py-2.5 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--mama-pink)] focus:border-[var(--mama-hot-pink)] transition-all text-font-2 text-gray-800 disabled:bg-gray-50"
                 {...register("amount", {
                   required: "Nominal wajib diisi",
                   valueAsNumber: true,
-                  validate: (v) =>
-                    (isPercentage ? v > 0 && v <= 100 : v > 0) ||
-                    (isPercentage ? "Persentase harus 1–100" : "Nominal harus lebih dari 0"),
+                  validate: (v) => {
+                    const pct = getValues("isPercentage");
+                    return (pct ? v > 0 && v <= 100 : v > 0) || (pct ? "Persentase harus 1–100" : "Nominal harus lebih dari 0");
+                  },
                 })}
               />
             </div>
@@ -154,9 +141,7 @@ export const PromoCreateForm = () => {
             <label className="relative inline-flex items-center cursor-pointer w-max group">
               <input type="checkbox" className="sr-only peer" disabled={isSubmitting} {...register("isActive")} />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--mama-pink)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--mama-hot-pink)] disabled:opacity-50 disabled:cursor-not-allowed group-hover:after:scale-95"></div>
-              <span className={`ml-3 text-font-2 font-medium transition-colors ${isActiveValue ? "text-[var(--mama-hot-pink)]" : "text-gray-500"}`}>
-                {isActiveValue ? "Aktif" : "Tidak Aktif"}
-              </span>
+              <span className={`ml-3 text-font-2 font-medium transition-colors ${isActiveValue ? "text-[var(--mama-hot-pink)]" : "text-gray-500"}`}>{isActiveValue ? "Aktif" : "Tidak Aktif"}</span>
             </label>
           </div>
         </div>

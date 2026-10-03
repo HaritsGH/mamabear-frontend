@@ -1,9 +1,17 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "fumadocs-ui/style.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+html body {
+  background-color: oklch(var(--background));
+  color: var(--mama-brown);
+}
+[role="dialog"] input[placeholder="Search"]:focus-visible {
+  box-shadow: none;
+}
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -91,7 +99,7 @@
     --sidebar-ring: 0.5804 0.1707 340.357;
   }
 
-  .dark {
+  .dark .mamabear-docs {
     --background: 0.1448 0.0168 46.5307;
     --foreground: 0.9851 0 0;
     --card: 0.1996 0.0208 45.4712;

@@ -1,0 +1,10 @@
+{
+  "title": "Developer Guide",
+  "pages": [
+    "getting-started",
+    "architecture",
+    "authentication",
+    "api-integration",
+    "testing"
+  ]
+}

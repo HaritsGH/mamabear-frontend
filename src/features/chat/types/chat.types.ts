@@ -36,5 +36,6 @@ export interface CreateChatDto {
  */
 export interface SendChatResponse {
   sessionId: string;
-  message: ChatMessage;
+  // message: ChatMessage;
+  message: string;
 }

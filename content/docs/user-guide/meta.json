@@ -1,0 +1,10 @@
+{
+  "title": "User Guide",
+  "pages": [
+    "authentication",
+    "shopping",
+    "cart-and-checkout",
+    "account-and-orders",
+    "admin-dashboard"
+  ]
+}

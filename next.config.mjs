@@ -1,3 +1,7 @@
+import { createMDX } from "fumadocs-mdx/next";
+
+const withMDX = createMDX();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -25,12 +29,12 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        // Whenever the frontend calls /api/backend/..., Next.js forwards it to Railway
+        // Forward backend proxy requests to the sibling API running locally.
         source: '/api/backend/:path*',
-        destination: 'https://mamabear-backend-dev.up.railway.app/api/:path*',
+        destination: 'http://localhost:3000/api/:path*',
       },
     ]
   }
 };
 
-export default nextConfig;
+export default withMDX(nextConfig);

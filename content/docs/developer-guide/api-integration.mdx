@@ -1,0 +1,39 @@
+---
+title: API Integration
+description: Use the shared client, feature services, backend rewrite, and generated OpenAPI types.
+---
+
+## Base URL
+
+`src/lib/config.ts` reads `NEXT_PUBLIC_API_URL` and falls back to `http://localhost:3000/api`. Set the variable explicitly for the backend environment you intend to use.
+
+## Shared client
+
+`src/lib/api.ts` exports `fetchWrapper` and convenience methods through `apiClient`:
+
+- `get`
+- `post`
+- `put`
+- `patch`
+- `delete`
+- `postImage`
+
+The wrapper resolves relative endpoints against the API base URL, attaches the current bearer token, and adds JSON content type for string request bodies. `postImage` leaves multipart headers to the browser.
+
+This client is designed for Client Components. Server Components should use `getServerSession` and native `fetch` so authentication is resolved on the server.
+
+## Feature services
+
+Feature service files translate UI needs into backend requests. Keep endpoint construction, response checks, and response typing in those services rather than scattering fetch calls across components.
+
+`next.config.mjs` also rewrites `/api/backend/:path*` to the sibling backend at `http://localhost:3000/api/:path*`. Preserve that local development boundary when editing Next.js configuration.
+
+## Generated API types
+
+Regenerate the OpenAPI declaration with:
+
+```bash
+npm run generate:api
+```
+
+The script reads `http://localhost:3000/api-json` from the running sibling backend and writes `src/types/openapi/api.d.ts`. Review generated changes before committing them.

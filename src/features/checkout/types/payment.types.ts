@@ -1,3 +1,5 @@
+import { OrderStatus } from "@/features/orders/types/order.types";
+
 /**
  * Customer information required for transaction generation.
  */
@@ -23,3 +25,5 @@ export interface PaymentTransaction {
   token: string;
   paymentRedirectUrl: string;
 }
+
+export const PAID_STATUSES: readonly OrderStatus[] = ["PAYMENT_PAID", "CONFIRMED", "PROCESSED"];

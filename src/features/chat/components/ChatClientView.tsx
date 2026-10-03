@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -41,7 +41,7 @@ const formatTitle = (session: ChatSession) => {
   const date = new Date(session.createdAt);
   const day = date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
   const time = date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
-  return `Chat ${day} â€¢ ${time}`;
+  return `Chat ${day} ${time}`;
 };
 
 const formatTime = (iso: string) => {
@@ -235,7 +235,3 @@ export function ChatClientView() {
     </div>
   );
 }
-
-
-
-

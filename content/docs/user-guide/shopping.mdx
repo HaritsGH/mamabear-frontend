@@ -7,6 +7,8 @@ description: Browse categories, search the catalog, inspect products, and use ch
 
 The home page highlights categories, featured products, promotional moments, testimonials, and MamaBear value propositions. Use these sections as shortcuts into the catalog.
 
+![MamaBear home page with hero banner, search bar, and chat button](/images/docs/home.png)
+
 ## Browse the catalog
 
 - `/categories` lists the available product categories.
@@ -16,10 +18,48 @@ The home page highlights categories, featured products, promotional moments, tes
 
 Product filters narrow the current listing. Search and category results are derived from the backend catalog, so available items can change as administrators update inventory and visibility.
 
+![Product listing with category, price, and rating filters](/images/docs/products.png)
+
+![Product detail page with variant, quantity, and add-to-cart action](/images/docs/product-detail.png)
+
 ## Search
 
 Use the navigation search to open `/search` with your query. Search results link to matching product detail pages. Try a shorter product or category term if a specific query returns no results.
 
+![Search results for the query "asi"](/images/docs/search.png)
+
 ## Chat-assisted discovery
 
-Open the floating chat widget or `/chat` to ask for shopping help. The chat experience can present product recommendation cards that link back into the catalog. Treat recommendations as discovery aids and confirm price, stock, and product details on the product page before adding an item to the cart.
+The MamaBear AI assistant answers product questions and recommends items from the catalog. Open it from `/chat`, the **Chat** tab in the mobile bottom bar, **Online Chat** in the sidebar menu, or the floating chat button on the home page.
+
+### Sign in first
+
+The assistant requires a customer session. Signed-out visitors see a prompt with a **Login** button that returns them to the chat after signing in.
+
+![Chat page asking a signed-out visitor to log in](/images/docs/chat-login-required.png)
+
+### Ask a question
+
+Type a question and press **Enter** to send it (**Shift+Enter** adds a new line). Your message appears immediately while the assistant prepares its answer. If sending fails, the message is removed and an error is shown so you can try again.
+
+The assistant may ask a follow-up question first, for example whether you are pregnant or breastfeeding, because some products are not suitable during pregnancy. Answer it to get more relevant recommendations.
+
+When the assistant recommends products, up to three product cards appear under its answer with the product image, name, and price. Select a card to open the product page. Treat recommendations as discovery aids and confirm price, stock, and product details on the product page before adding an item to the cart.
+
+![Chat conversation with AI answer and product recommendation cards](/images/docs/chat-conversation.png)
+
+If the assistant suggests contacting the store, a **Hubungi Admin MamaBear** card appears that opens a WhatsApp conversation with the MamaBear admin.
+
+### Chat history and new chats
+
+Previous conversations are listed under **Riwayat Chat**, newest first, and the most recent one opens automatically. Select a conversation to continue it, or use **Chat Baru** to start a new one; the new conversation is added to the history after your first message.
+
+On mobile, open the history from the clock button next to **Chat Baru**.
+
+![Mobile chat with the history sheet open](/images/docs/chat-mobile-history.png)
+
+### Floating chat widget
+
+On larger screens, the chat button in the bottom-right corner of the home page opens a compact version of the assistant. It shares the same conversations as `/chat`, and its clock button switches between the current chat and the history list.
+
+![Home page with the floating chat widget open](/images/docs/chat-widget.png)

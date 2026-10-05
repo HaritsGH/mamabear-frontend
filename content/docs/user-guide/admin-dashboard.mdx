@@ -9,20 +9,43 @@ The `/admin` area is restricted to signed-in accounts whose role is `ADMIN` or `
 
 `/admin/dashboard` summarizes store metrics, sales trends, top-selling products, recent orders, and low-stock products.
 
+![Admin dashboard with summary cards and sales analysis chart](/images/docs/admin-dashboard.png)
+
 ## Catalog and promotions
 
 - **Products:** list, filter, create, edit, delete, and perform supported bulk actions.
 - **Categories:** list, create, edit, configure imagery and SEO information, and remove categories.
 - **Promotions:** list, create, and edit promotional codes and their discount configuration.
 
+![Admin product list with search, category filter, and CSV export](/images/docs/admin-products.png)
+
 ## Operations
 
 - **Orders:** filter the order list, open order details, inspect items and timeline information, and apply supported status updates.
 - **Customers:** search and filter customers, open detailed profiles, inspect order history and statistics, and manage supported customer status changes.
 
+![Admin order list with search, status, sort, and date filters](/images/docs/admin-orders.png)
+
+![Admin customer list with order count, total spend, and status](/images/docs/admin-customers.png)
+
 ## Reporting and settings
 
-The reports area presents business summaries and charts for the selected reporting period. Settings are organized into store, payment, shipping, and tax sections.
+The reports area presents business summaries and charts for the selected reporting period. Settings are organized into store, shipping, payment, tax, and AI model sections.
+
+![Reports page with revenue summary and revenue trend chart](/images/docs/admin-reports.png)
+
+![Settings page showing store, shipping, payment, tax, and AI model tabs](/images/docs/admin-settings.png)
+
+### AI assistant models
+
+The **Model AI** tab controls which models power the customer chat assistant. Enter model IDs in OpenRouter format (`provider/model-name`); the tab links to openrouter.ai/models for the available IDs.
+
+- **Model Jawaban Chatbot** writes the answers customers see.
+- **Model Guardrail** screens questions (for example medical or off-topic ones) before they are answered.
+
+Select **Simpan Perubahan** to save.
+
+![Model AI settings tab with chatbot and guardrail model fields](/images/docs/admin-settings-ai.png)
 
 ## Administrators
 

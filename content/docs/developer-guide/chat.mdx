@@ -1,0 +1,126 @@
+---
+title: AI Chat
+description: Components, state, API contract, and reply parsing behind the MamaBear AI shopping assistant.
+---
+
+The AI assistant lives in `src/features/chat`. The frontend sends questions to the backend, keeps per-user chat sessions, and turns special lines in the assistant's reply into product and contact cards. Model calls happen on the backend; the frontend never talks to the AI provider directly.
+
+## File map
+
+```txt
+src/
+├── app/(shop)/chat/page.tsx                 /chat route, renders ChatClientView
+├── app/page.tsx                             home page, mounts ChatWidget
+├── components/layout/ChatWidget.tsx         floating widget (md and up)
+└── features/
+    ├── chat/
+    │   ├── components/
+    │   │   ├── ChatClientView.tsx           full chat page
+    │   │   ├── ChatRecommendationCards.tsx  product cards from slugs
+    │   │   └── ChatContactCard.tsx          WhatsApp admin card
+    │   ├── hooks/useChat.ts                 session and message actions
+    │   ├── store/use-chat-store.ts          Zustand state
+    │   ├── services/chatService.ts          backend requests
+    │   ├── types/chat.types.ts              API shapes
+    │   └── utils/recommendations.ts         reply parsing and IDR formatting
+    └── admin/settings/components/AiModelTab.tsx   model settings for admins
+```
+
+Entry points into `/chat` are the **Chat** tab in `BottomNavbar` and **Online Chat** in `SidebarMenu`. The **Chat dengan Admin** button on the product page and **Chat dengan MamaBear** on the order detail page are plain WhatsApp links, not the AI assistant.
+
+## Components
+
+### ChatClientView
+
+The `/chat` page. It shows a session sidebar (a bottom sheet below `lg`), the message list, and the input. Signed-out users get a login prompt that links to `/login?callbackUrl=/chat`.
+
+![ChatClientView with a conversation and ChatRecommendationCards](/images/docs/chat-conversation.png)
+
+![ChatClientView signed-out state](/images/docs/chat-login-required.png)
+
+![ChatClientView mobile history sheet](/images/docs/chat-mobile-history.png)
+
+### ChatWidget
+
+A compact version of the same chat, mounted only on the home page and hidden below `md`. It loads sessions the first time it is opened and toggles between the chat and the history list. Signed-out users are sent to `/login?callbackUrl=/`.
+
+![ChatWidget open on the home page](/images/docs/chat-widget.png)
+
+Both views use `useChat`, so they share sessions and messages. They also duplicate the `formatTitle` and `formatTime` helpers; keep them in sync if you change one.
+
+### ChatRecommendationCards
+
+Receives product slugs, fetches each with `productService.getProductBySlug`, and renders up to three cards linking to `/products/[slug]`. Failed lookups are skipped silently, and nothing renders if no product resolves.
+
+### ChatContactCard
+
+Renders a **Hubungi Admin MamaBear** card that opens `https://api.whatsapp.com/send/?phone=<number>`, formatting the number as `+62 xxx-xxxx-xxxx`.
+
+## State and actions
+
+`use-chat-store.ts` is a plain (non-persisted) Zustand store holding `sessions`, `activeSessionId`, `messages`, the loading flags `isLoadingSessions`, `isLoadingMessages`, `isSending`, and `error`.
+
+`useChat` exposes the actions the views call:
+
+| Action | Behavior |
+|---|---|
+| `loadSessions()` | Fetches the user's sessions. Both views auto-select the newest one once. |
+| `selectSession(id)` | Sets the active session, clears messages, and loads that session's messages. |
+| `startNewSession()` | Clears the active session and messages. The next send creates a new session. |
+| `sendMessage(text)` | Trims the text and ignores empty input. Appends the user message optimistically, then appends the assistant reply. On failure it removes the optimistic message and sets `error`. On the first message of a new session it stores the returned `sessionId` and reloads sessions. |
+
+Assistant messages created by `sendMessage` get client-side IDs and timestamps (`assistant_<ms>`). Reloading the session from the backend replaces them with stored messages.
+
+## API contract
+
+`chatService.ts` uses the shared `apiClient`, so requests carry the signed-in user's bearer token. Responses use the standard `ApiResponse<T>` envelope.
+
+| Function | Request | Returns |
+|---|---|---|
+| `sendChatMessage` | `POST /chat` with `{ sessionId?, message }`. Omit `sessionId` to start a session. | `{ sessionId, message }`, where `message` is the assistant's reply text |
+| `getChatSessions` | `GET /chat` | `ChatSession[]`, newest first |
+| `getChatMessages` | `GET /chat/:sessionId` | `ChatMessage[]` for that session |
+
+The backend enforces session ownership: another user's session returns 403, and an unknown one returns 404. `sendChatMessage` throws the backend's message when `success` is false, which is how AI provider failures reach the user as a safe error string.
+
+## Reply markers
+
+The backend appends machine-readable lines to some replies. `parseAssistantMessage` in `utils/recommendations.ts` strips them from the visible text and returns structured data:
+
+```txt
+REKOMENDASI PRODUK: almond-mix, asi-booster
+KONTAK ADMIN: 628888695757
+```
+
+- `REKOMENDASI PRODUK:` gives comma-separated product slugs. They are lowercased, de-duplicated, and capped at three, then passed to `ChatRecommendationCards`.
+- `KONTAK ADMIN:` gives a WhatsApp number, which is passed to `ChatContactCard`. Only numbers matching `62` followed by 8 to 13 digits are accepted. Anything else is left visible in the text instead of producing a card with a possibly invented number.
+
+The backend classifies questions before answering. Product questions (AMAN) end with the recommendation line, while health (MEDIS) and order or store questions (TOKO) end with the contact line. Off-topic questions get a plain refusal with neither line. The remaining text is rendered with `react-markdown`.
+
+The marker strings are a contract with the backend's `chat.service.ts`. The fixtures in `recommendations.test.ts` copy real backend replies, so change both sides together.
+
+## Model settings
+
+Admins choose the models in **Settings → Model AI**, rendered by `AiModelTab`. It has two OpenRouter model IDs, saved with `PUT /admin/settings/:key`:
+
+- `ai_generation_model` writes the customer-facing answers.
+- `ai_guardrail_model` screens questions before they are answered.
+
+![AiModelTab in admin settings](/images/docs/admin-settings-ai.png)
+
+## Tests
+
+- `services/chatService.test.ts` covers request paths, response unwrapping, HTTP errors, backend error messages, and the 403 and 404 ownership responses.
+- `utils/recommendations.test.ts` covers each reply category, phone number validation, and blank-line cleanup.
+
+Run them with `npm test -- chat`.
+
+## Screenshots
+
+The screenshots on this page come from the `chat` group of the docs capture script:
+
+```bash
+npm run docs:screenshots -- chat
+```
+
+It sends three real messages to the assistant as the seed user `siti.rahayu@email.com`. That uses OpenRouter credits and adds a chat session each run.

@@ -1,5 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { isDevGuideUrl, isDocsAdmin } from "@/lib/docs/access";
 
 /**
  * NextAuth Middleware
@@ -28,17 +29,14 @@ export default withAuth(
     }
 
     // --- Role-Based Protection: ADMIN and SUPERADMIN only ---
-    const isAdmin = token?.role === "ADMIN" || token?.role === "SUPERADMIN";
+    const isAdmin = isDocsAdmin(token?.role as string | undefined);
 
     if (path.startsWith("/admin") && !isAdmin) {
       return NextResponse.redirect(new URL("/", req.url));
     }
 
-    if (path.startsWith("/api/search") && !isAdmin) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    if (path.startsWith("/docs") && !isAdmin) {
+    // User Guide stays public; only the Developer Guide is admin-only
+    if (isDevGuideUrl(path) && !isAdmin) {
       // Keep the URL, show the unauthorized page with a real 403 status
       return NextResponse.rewrite(new URL("/unauthorized", req.url), { status: 403 });
     }
@@ -68,7 +66,6 @@ export const config = {
     "/dashboard/:path*", // Protects /dashboard, /dashboard/settings, etc.
     "/admin/:path*",     // Protects /admin, /admin/users, etc.
     "/account/:path*",   // Protects /account and all nested account routes
-    "/docs/:path*",      // Docs are admin-only
-    "/api/search",       // Docs search index is admin-only
+    "/docs/developer-guide/:path*", // Developer Guide is admin-only
   ],
 };

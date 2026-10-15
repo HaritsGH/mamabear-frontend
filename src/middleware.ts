@@ -27,12 +27,20 @@ export default withAuth(
       return response;
     }
 
-    // --- Role-Based Protection for Admin Routes ---
-    if (path.startsWith("/admin")) {
-      // Allow both ADMIN and SUPERADMIN roles to access
-      if (token?.role !== "ADMIN" && token?.role !== "SUPERADMIN") {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
+    // --- Role-Based Protection: ADMIN and SUPERADMIN only ---
+    const isAdmin = token?.role === "ADMIN" || token?.role === "SUPERADMIN";
+
+    if (path.startsWith("/admin") && !isAdmin) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    if (path.startsWith("/api/search") && !isAdmin) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    if (path.startsWith("/docs") && !isAdmin) {
+      // Keep the URL, show the unauthorized page with a real 403 status
+      return NextResponse.rewrite(new URL("/unauthorized", req.url), { status: 403 });
     }
   },
   {
@@ -59,6 +67,8 @@ export const config = {
   matcher: [
     "/dashboard/:path*", // Protects /dashboard, /dashboard/settings, etc.
     "/admin/:path*",     // Protects /admin, /admin/users, etc.
-    "/account/:path*"    // Protects /account and all nested account routes
+    "/account/:path*",   // Protects /account and all nested account routes
+    "/docs/:path*",      // Docs are admin-only
+    "/api/search",       // Docs search index is admin-only
   ],
 };

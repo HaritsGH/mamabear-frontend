@@ -81,6 +81,26 @@ describe("useLogin", () => {
     expect(pushMock).toHaveBeenCalledWith("/admin/dashboard");
   });
 
+  it("redirects an ADMIN to the callback url when one is provided", async () => {
+    searchParamsValue = "callbackUrl=/docs";
+    (signIn as jest.Mock).mockResolvedValue({ error: null });
+    (getSession as jest.Mock).mockResolvedValue({
+      user: { role: "ADMIN" },
+    });
+
+    const { result } = renderHook(() => useLogin());
+
+    await act(async () => {
+      await result.current.handleLogin({
+        email: "admin@test.com",
+        password: "password",
+        remember: false,
+      });
+    });
+
+    expect(pushMock).toHaveBeenCalledWith("/docs");
+  });
+
   it("defaults the callback url to / when none is provided", async () => {
     (signIn as jest.Mock).mockResolvedValue({ error: null });
     (getSession as jest.Mock).mockResolvedValue({ user: { role: "USER" } });

@@ -28,8 +28,7 @@ export default withAuth(
     }
 
     // --- Role-Based Protection for Admin Routes ---
-    // Docs (and its search API) are admin-only too
-    if (path.startsWith("/admin") || path.startsWith("/docs") || path.startsWith("/api/search")) {
+    if (path.startsWith("/admin")) {
       // Allow both ADMIN and SUPERADMIN roles to access
       if (token?.role !== "ADMIN" && token?.role !== "SUPERADMIN") {
         return NextResponse.redirect(new URL("/", req.url));
@@ -60,8 +59,6 @@ export const config = {
   matcher: [
     "/dashboard/:path*", // Protects /dashboard, /dashboard/settings, etc.
     "/admin/:path*",     // Protects /admin, /admin/users, etc.
-    "/account/:path*",   // Protects /account and all nested account routes
-    "/docs/:path*",      // Fumadocs pages, admin only
-    "/api/search",       // Fumadocs search index, admin only
+    "/account/:path*"    // Protects /account and all nested account routes
   ],
 };

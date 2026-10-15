@@ -35,7 +35,8 @@ export function useLogin() {
       const session = await getSession();
 
       if (session?.user?.role === "ADMIN" || session?.user?.role === "SUPERADMIN") {
-        router.push("/admin/dashboard");
+        // Admins return to the page that sent them here (e.g. /docs), else the dashboard
+        router.push(searchParams.get("callbackUrl") || "/admin/dashboard");
       } else {
         // router.push("/");
         router.push(callbackUrl);

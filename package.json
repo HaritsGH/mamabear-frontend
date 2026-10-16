@@ -10,7 +10,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "postinstall": "fumadocs-mdx",
-    "generate:api": "openapi-typescript http://localhost:3000/api-json -o ./src/types/openapi/api.d.ts"
+    "generate:api": "openapi-typescript http://localhost:3000/api-json -o ./src/types/openapi/api.d.ts",
+    "docs:screenshots": "node scripts/capture-docs-screenshots.mjs"
   },
   "dependencies": {
     "@types/mdx": "2.0.14",
@@ -52,6 +53,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "openapi-typescript": "^7.13.0",
+    "playwright": "^1.63.0",
     "postcss": "^8",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",

@@ -7,6 +7,10 @@ description: Manage cart items, promotions, delivery details, payment, and order
 
 Add products from product cards or detail pages. The mini-cart provides a quick summary, while `/cart` provides complete controls for quantities and item removal. The order summary recalculates product totals as the cart changes.
 
+![Add-to-cart dialog with variant and quantity selection](/images/docs/add-to-cart-modal.png)
+
+![Cart page with items, free-shipping progress, promo code field, and order summary](/images/docs/cart.png)
+
 The free-shipping progress indicator shows how close the current cart is to the configured threshold. It is informational until the order is calculated during checkout.
 
 ## Apply a promotion
@@ -22,5 +26,7 @@ Checkout is protected, so sign in before opening `/checkout`.
 3. Choose an available shipping service.
 4. Review discounts, shipping, and the final total.
 5. Confirm the order and continue to `/checkout/payment/[id]`.
+
+![Checkout delivery step with saved addresses and order summary](/images/docs/checkout.png)
 
 Follow the payment instructions displayed for that order. MamaBear shows the completion view at `/checkout/success/[id]` after a successful flow. Do not reuse another order's payment or success URL.

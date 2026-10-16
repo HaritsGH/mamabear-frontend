@@ -5,6 +5,7 @@
     "architecture",
     "authentication",
     "api-integration",
+    "chat",
     "testing"
   ]
 }
